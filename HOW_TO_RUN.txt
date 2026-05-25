@@ -1,0 +1,94 @@
+════════════════════════════════════════════════
+   KavachAI — Complete Setup & Run Guide
+   SuRaksha Hackathon 2.0 | Canara Bank
+════════════════════════════════════════════════
+
+STEP 1 — Find Your Laptop IP Address
+──────────────────────────────────────
+Open Command Prompt → type: ipconfig
+Look for: IPv4 Address → example: 192.168.1.105
+Remember this number!
+
+STEP 2 — Update Android App IP
+──────────────────────────────────────
+Open this file in Android Studio:
+MyApplication/app/src/main/java/com/example/
+myapplication/di/NetworkModule.kt
+
+Change this line:
+private const val BASE_URL = "http://YOUR_LAPTOP_IP:5000/"
+
+Replace YOUR_LAPTOP_IP with your actual IP:
+Example: "http://192.168.1.105:5000/"
+
+STEP 3 — Install Python Packages
+──────────────────────────────────────
+Open Command Prompt in the "server" folder:
+cd server
+pip install -r requirements.txt
+
+STEP 4 — Start FastAPI Backend
+──────────────────────────────────────
+In Command Prompt (server folder):
+uvicorn main:app --host 0.0.0.0 --port 5000 --reload
+
+You should see:
+✅ Uvicorn running on http://0.0.0.0:5000
+
+STEP 5 — Start Streamlit Dashboard
+──────────────────────────────────────
+Open a NEW Command Prompt (server folder):
+streamlit run dashboard.py
+
+Then open browser: http://localhost:8501
+You should see the KavachAI Dashboard!
+
+STEP 6 — Run Android App
+──────────────────────────────────────
+Open MyApplication in Android Studio
+Click the green Run button
+Install on your Xiaomi phone
+
+STEP 7 — Test the System
+──────────────────────────────────────
+1. Open KavachAI app on phone
+2. Tap "Test AI" button
+   OR ask a friend to call your number
+
+3. Test scenarios:
+   → Number ending in 1 = SAFE call
+   → Number ending in 2 = SUSPICIOUS call  
+   → Any other number   = FRAUD detected
+
+4. Watch dashboard update at localhost:8501!
+
+STEP 8 — Demo for Judges
+──────────────────────────────────────
+1. Show KavachAI app on phone
+2. Tap Test AI → Enter fraud number
+3. AI speaks: "Hello this is KavachAI..."
+4. Shows: FRAUD DETECTED ❌
+5. Show dashboard updating in real time
+6. Explain the 3-layer system
+
+════════════════════════════════════════════════
+   Files Changed in This Update:
+════════════════════════════════════════════════
+1. AndroidManifest.xml  → Added 4 new permissions
+2. NetworkModule.kt     → Updated IP placeholder
+3. requirements.txt     → Added all Python packages
+4. dashboard.py         → Added color coded verdict table
+
+════════════════════════════════════════════════
+   Complete System Architecture:
+════════════════════════════════════════════════
+
+Android App (Customer Phone)
+        ↓ API call
+FastAPI Backend (main.py — port 5000)
+        ↓ logs data
+Streamlit Dashboard (dashboard.py — port 8501)
+
+════════════════════════════════════════════════
+   Team: KavachAI | Canara Bank Hackathon 2026
+════════════════════════════════════════════════

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Shield (Kavach) in Vibrant Yellow -->
+    <path
+        android:fillColor="#FFEB3B"
+        android:pathData="M 54,24 L 30,33 V 54 C 30,73 54,85 54,85 C 54,85 78,73 78,54 V 33 L 54,24 Z" />
+    <!-- Phone Handset in Vibrant Blue -->
+    <path
+        android:fillColor="#1976D2"
+        android:pathData="M 59.5,55.5 C 58,54 56.5,54 55,55.5 L 53,57.5 C 50.5,56 48.5,54 47,51.5 L 49,49.5 C 50.5,48 50.5,46.5 49,45 L 46,42 C 44.5,40.5 43,40.5 41.5,42 L 39,44.5 C 39,49.5 41.5,55.5 46.5,60.5 C 51.5,65.5 57.5,68 62.5,68 L 65,65.5 C 66.5,64 66.5,62.5 65,61 L 62.5,58.5 L 59.5,55.5 Z" />
+</vector>
