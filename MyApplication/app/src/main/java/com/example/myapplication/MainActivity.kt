@@ -115,6 +115,7 @@ fun KavachSetupScreen(onSetupComplete: () -> Unit) {
                     permissionLauncher.launch(
                         arrayOf(
                             android.Manifest.permission.READ_PHONE_STATE,
+                            android.Manifest.permission.READ_CALL_LOG,
                             android.Manifest.permission.READ_CONTACTS
                         )
                     )
