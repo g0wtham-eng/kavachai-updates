@@ -47,6 +47,10 @@ class ScreeningActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         enableEdgeToEdge()
 
         val phoneNumber = intent.getStringExtra(EXTRA_PHONE_NUMBER) ?: "Unknown"
+        
+        // Auto-enable Speakerphone so the TTS plays into the active call's microphone
+        activateSpeakerphone()
+
         viewModel.startScreening(phoneNumber)
 
         setContent {
@@ -99,9 +103,30 @@ class ScreeningActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         }
     }
 
+    private fun activateSpeakerphone() {
+        try {
+            val audioManager = getSystemService(android.content.Context.AUDIO_SERVICE) as android.media.AudioManager
+            audioManager.mode = android.media.AudioManager.MODE_IN_CALL
+            audioManager.isSpeakerphoneOn = true
+        } catch (e: Exception) {
+            android.util.Log.e("ScreeningActivity", "Error turning on speakerphone", e)
+        }
+    }
+
+    private fun deactivateSpeakerphone() {
+        try {
+            val audioManager = getSystemService(android.content.Context.AUDIO_SERVICE) as android.media.AudioManager
+            audioManager.isSpeakerphoneOn = false
+            audioManager.mode = android.media.AudioManager.MODE_NORMAL
+        } catch (e: Exception) {
+            android.util.Log.e("ScreeningActivity", "Error turning off speakerphone", e)
+        }
+    }
+
     override fun onDestroy() {
         tts?.stop()
         tts?.shutdown()
+        deactivateSpeakerphone()
         super.onDestroy()
     }
 }
