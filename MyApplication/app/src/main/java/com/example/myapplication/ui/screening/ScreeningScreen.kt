@@ -58,7 +58,7 @@ fun ScreeningScreen(
             }
             
             Text(
-                text = "KavachAI Active Screening",
+                text = "Canara Bank Security Screener",
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(top = 16.dp)
@@ -121,27 +121,43 @@ fun TranscriptList(transcript: List<String>) {
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(bottom = 16.dp)
     ) {
         items(transcript) { message ->
             val isAI = message.startsWith("KavachAI:")
+            val cleanMessage = message.removePrefix("KavachAI:").removePrefix("Caller:").removePrefix("Caller (Robo-AI):").trim()
+            
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(end = if (isAI) 32.dp else 0.dp, start = if (isAI) 0.dp else 32.dp),
                 contentAlignment = if (isAI) Alignment.CenterStart else Alignment.CenterEnd
             ) {
-                Surface(
-                    shape = RoundedCornerShape(16.dp),
-                    color = if (isAI) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer,
-                    tonalElevation = 2.dp
-                ) {
+                Column(horizontalAlignment = if (isAI) Alignment.Start else Alignment.End) {
                     Text(
-                        text = message,
-                        modifier = Modifier.padding(12.dp),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = if (isAI) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer
+                        text = if (isAI) "Canara AI" else "Caller",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                     )
+                    Surface(
+                        shape = RoundedCornerShape(
+                            topStart = 20.dp,
+                            topEnd = 20.dp,
+                            bottomStart = if (isAI) 4.dp else 20.dp,
+                            bottomEnd = if (isAI) 20.dp else 4.dp
+                        ),
+                        color = if (isAI) Color(0xFF0F4C81) else MaterialTheme.colorScheme.secondaryContainer, // Canara Blue for AI
+                        tonalElevation = 2.dp
+                    ) {
+                        Text(
+                            text = cleanMessage,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = if (isAI) Color.White else MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    }
                 }
             }
         }
@@ -214,29 +230,37 @@ fun VerdictCard(state: ScreeningState) {
 fun ScreeningActions(state: ScreeningState, onClose: () -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        tonalElevation = 8.dp,
+        tonalElevation = 16.dp,
         color = MaterialTheme.colorScheme.surface
     ) {
         Row(
             modifier = Modifier
                 .navigationBarsPadding()
-                .padding(24.dp)
+                .padding(horizontal = 24.dp, vertical = 20.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            // Reject Button
+            // End Call Button
             LargeActionCircle(
                 icon = Icons.Rounded.CallEnd,
-                color = Color(0xFFF44336),
-                label = "Reject",
+                color = Color(0xFFE53935),
+                label = "End Call",
                 onClick = onClose
             )
 
-            // Answer Button (only if not confirmed fraud)
+            // Take Over Button
+            LargeActionCircle(
+                icon = Icons.Rounded.PersonSearch,
+                color = Color(0xFF0F4C81), // Canara Blue
+                label = "Take Over",
+                onClick = onClose
+            )
+
+            // Answer Button
             if (state.verdict != Verdict.FRAUD) {
                 LargeActionCircle(
                     icon = Icons.Rounded.Call,
-                    color = Color(0xFF4CAF50),
+                    color = Color(0xFF43A047),
                     label = "Answer",
                     onClick = onClose
                 )

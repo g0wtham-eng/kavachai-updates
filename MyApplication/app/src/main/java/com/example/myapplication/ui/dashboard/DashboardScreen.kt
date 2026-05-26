@@ -63,8 +63,8 @@ fun DashboardScreen(
             LargeTopAppBar(
                 title = { 
                     Column {
-                        Text(stringResource(R.string.dashboard_title), fontWeight = FontWeight.Black)
-                        Text(stringResource(R.string.dashboard_subtitle), style = MaterialTheme.typography.labelMedium)
+                        Text("Canara AI Secretary", fontWeight = FontWeight.Black)
+                        Text("Live Call Protection Dashboard", style = MaterialTheme.typography.labelMedium)
                     }
                 },
                 colors = TopAppBarDefaults.largeTopAppBarColors(
@@ -160,7 +160,7 @@ fun CustomNumberSimulationCard(
                     modifier = Modifier.size(28.dp)
                 )
                 Text(
-                    text = "Custom Screening Sandbox",
+                    text = "Recent Screened Calls",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -168,7 +168,7 @@ fun CustomNumberSimulationCard(
             }
             
             Text(
-                text = "Enter any phone number below to simulate an incoming call and see how KavachAI responds in real-time:",
+                text = "Enter any phone number below to manually invoke the AI Secretary for a test call:",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -234,17 +234,17 @@ fun CustomNumberSimulationCard(
                 }
                 
                 Text(
-                    text = "🟢 Ends in 1: Simulates SAFE caller (Verified Representative)",
+                    text = "🟢 Ends in 1: Simulates SAFE verified contact",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "🟡 Ends in 2: Simulates SUSPICIOUS caller (Spam Lucky Draw)",
+                    text = "🟡 Ends in 2: Simulates SUSPICIOUS loan offer",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "🔴 Ends in others: Simulates FRAUD caller (Deepfake AI Voice Cloned Phishing)",
+                    text = "🔴 Ends in others: Simulates FRAUD (Canara Bank Phishing)",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
