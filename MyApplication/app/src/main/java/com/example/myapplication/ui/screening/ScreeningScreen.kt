@@ -1,7 +1,9 @@
 package com.example.myapplication.ui.screening
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,151 +13,333 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.myapplication.ui.theme.MyApplicationTheme
+import com.example.myapplication.ui.theme.*
 
 @Composable
 fun ScreeningScreen(
     state: ScreeningState,
     onClose: () -> Unit
 ) {
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.background,
-        bottomBar = {
-            ScreeningActions(state, onClose)
-        }
-    ) { padding ->
+    val verdictColor = when (state.verdict) {
+        Verdict.ANALYZING  -> CanaraBlue
+        Verdict.SAFE       -> NeonGreen
+        Verdict.SUSPICIOUS -> NeonAmber
+        Verdict.FRAUD      -> NeonRed
+    }
+
+    val pulse = rememberInfiniteTransition(label = "pulse")
+    val ring1Scale by pulse.animateFloat(
+        initialValue = 1f, targetValue = 1.4f,
+        animationSpec = infiniteRepeatable(tween(1800, easing = EaseOutCirc), RepeatMode.Restart),
+        label = "ring1"
+    )
+    val ring2Scale by pulse.animateFloat(
+        initialValue = 1f, targetValue = 1.65f,
+        animationSpec = infiniteRepeatable(tween(1800, 300, easing = EaseOutCirc), RepeatMode.Restart),
+        label = "ring2"
+    )
+    val ring1Alpha by pulse.animateFloat(
+        initialValue = 0.5f, targetValue = 0f,
+        animationSpec = infiniteRepeatable(tween(1800, easing = EaseOutCirc), RepeatMode.Restart),
+        label = "alpha1"
+    )
+    val ring2Alpha by pulse.animateFloat(
+        initialValue = 0.4f, targetValue = 0f,
+        animationSpec = infiniteRepeatable(tween(1800, 300, easing = EaseOutCirc), RepeatMode.Restart),
+        label = "alpha2"
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(BlackBg)
+    ) {
+        // ── Glow blob behind caller ring ──
+        Box(
+            modifier = Modifier
+                .size(280.dp)
+                .align(Alignment.TopCenter)
+                .offset(y = 60.dp)
+                .blur(100.dp)
+                .background(verdictColor.copy(alpha = 0.2f), CircleShape)
+        )
+
         Column(
             modifier = Modifier
-                .padding(padding)
                 .fillMaxSize()
-                .padding(horizontal = 24.dp, vertical = 16.dp),
+                .statusBarsPadding()
+                .navigationBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Surface(
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                modifier = Modifier.size(80.dp)
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // ── AI Label ──
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Box(contentAlignment = Alignment.Center) {
+                Icon(Icons.Rounded.Shield, null, tint = CanaraBlue, modifier = Modifier.size(16.dp))
+                Text(
+                    "CANARA AI SCREENING",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = CanaraBlue,
+                    letterSpacing = 2.sp
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // ── Animated Caller Ring ──
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(160.dp)
+            ) {
+                // Pulse rings
+                Box(
+                    modifier = Modifier
+                        .size(120.dp)
+                        .scale(ring1Scale)
+                        .background(verdictColor.copy(alpha = ring1Alpha), CircleShape)
+                )
+                Box(
+                    modifier = Modifier
+                        .size(120.dp)
+                        .scale(ring2Scale)
+                        .background(verdictColor.copy(alpha = ring2Alpha), CircleShape)
+                )
+                // Main circle
+                Box(
+                    modifier = Modifier
+                        .size(120.dp)
+                        .background(
+                            Brush.radialGradient(
+                                listOf(
+                                    verdictColor.copy(alpha = 0.3f),
+                                    verdictColor.copy(alpha = 0.05f)
+                                )
+                            ),
+                            CircleShape
+                        )
+                        .border(2.dp, verdictColor.copy(alpha = 0.8f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
                     Icon(
-                        imageVector = Icons.Rounded.Shield,
+                        imageVector = Icons.Rounded.Person,
                         contentDescription = null,
-                        modifier = Modifier.size(40.dp),
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = verdictColor,
+                        modifier = Modifier.size(48.dp)
                     )
                 }
             }
-            
-            Text(
-                text = "Canara Bank Security Screener",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(top = 16.dp)
-            )
 
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // ── Caller Number ──
             Text(
                 text = state.phoneNumber,
-                style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Black),
-                modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
+                fontSize = 28.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = TextPrimary,
+                letterSpacing = 0.5.sp
+            )
+            Text(
+                text = "Unknown Caller",
+                fontSize = 13.sp,
+                color = TextSecondary,
+                modifier = Modifier.padding(top = 4.dp)
             )
 
-            // Analysis Progress Bar
-            LinearProgressIndicator(
-                progress = { state.progress },
-                modifier = Modifier.fillMaxWidth().height(8.dp).clip(CircleShape),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // ── Progress Bar ──
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 28.dp)
             ) {
-                Text("Analyzing call integrity...", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("${(state.progress * 100).toInt()}%", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                LinearProgressIndicator(
+                    progress = { state.progress },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(4.dp)
+                        .clip(CircleShape),
+                    color = verdictColor,
+                    trackColor = SurfaceLight
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 6.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Analyzing...", fontSize = 11.sp, color = TextSecondary)
+                    Text("${(state.progress * 100).toInt()}%", fontSize = 11.sp, color = verdictColor, fontWeight = FontWeight.Bold)
+                }
             }
 
-            // Voice, Origin, and Database checks
-            StatusCheckRows(state)
+            Spacer(modifier = Modifier.height(14.dp))
 
-            // AI Transcript Area
+            // ── Status Chips ──
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                StatusChip(modifier = Modifier.weight(1f), label = state.voiceStatus, icon = Icons.Rounded.RecordVoiceOver)
+                StatusChip(modifier = Modifier.weight(1f), label = state.originStatus, icon = Icons.Rounded.Wifi)
+                StatusChip(modifier = Modifier.weight(1f), label = state.dbStatus, icon = Icons.Rounded.Dataset)
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // ── Chat Transcript ──
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                    .padding(16.dp)
+                    .padding(horizontal = 20.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(SurfaceDark)
+                    .border(1.dp, verdictColor.copy(alpha = 0.2f), RoundedCornerShape(20.dp))
+                    .padding(12.dp)
             ) {
-                TranscriptList(state.transcript)
+                TranscriptChatList(transcript = state.transcript, accentColor = verdictColor)
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
-            // Verdict Card
-            VerdictCard(state)
+            // ── Verdict Banner ──
+            VerdictBanner(state = state, accentColor = verdictColor)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // ── Action Buttons ──
+            ActionButtonsRow(state = state, onClose = onClose, accentColor = verdictColor)
+
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
 
+// ─── Chat List ────────────────────────────────────────────────────────────────
 @Composable
-fun TranscriptList(transcript: List<String>) {
+fun TranscriptChatList(transcript: List<String>, accentColor: Color) {
     val listState = rememberLazyListState()
-    
     LaunchedEffect(transcript.size) {
-        if (transcript.isNotEmpty()) {
-            listState.animateScrollToItem(transcript.size - 1)
+        if (transcript.isNotEmpty()) listState.animateScrollToItem(transcript.size - 1)
+    }
+
+    if (transcript.isEmpty()) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(Icons.Rounded.Mic, null, tint = TextDim, modifier = Modifier.size(32.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("AI is listening...", color = TextDim, fontSize = 13.sp)
+            }
         }
+        return
     }
 
     LazyColumn(
         state = listState,
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(bottom = 16.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(4.dp)
     ) {
         items(transcript) { message ->
             val isAI = message.startsWith("KavachAI:")
-            val cleanMessage = message.removePrefix("KavachAI:").removePrefix("Caller:").removePrefix("Caller (Robo-AI):").trim()
-            
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = if (isAI) 32.dp else 0.dp, start = if (isAI) 0.dp else 32.dp),
-                contentAlignment = if (isAI) Alignment.CenterStart else Alignment.CenterEnd
+            val isWarning = message.contains("WARNING") || message.contains("CRITICAL") || message.contains("TERMINATING")
+            val cleanText = message
+                .removePrefix("KavachAI:")
+                .removePrefix("Caller:")
+                .removePrefix("Caller (Robo-AI):")
+                .trim()
+
+            val bubbleColor = when {
+                isAI && isWarning -> NeonRed.copy(alpha = 0.12f)
+                isAI              -> accentColor.copy(alpha = 0.1f)
+                else              -> SurfaceMid
+            }
+            val textColor = when {
+                isAI && isWarning -> NeonRed
+                isAI              -> TextPrimary
+                else              -> TextSecondary
+            }
+            val borderColor = when {
+                isAI && isWarning -> NeonRed.copy(0.4f)
+                isAI              -> accentColor.copy(0.25f)
+                else              -> TextDim.copy(0.2f)
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = if (isAI) Arrangement.Start else Arrangement.End
             ) {
-                Column(horizontalAlignment = if (isAI) Alignment.Start else Alignment.End) {
+                if (isAI) {
+                    // AI avatar
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .background(accentColor.copy(0.15f), CircleShape)
+                            .border(1.dp, accentColor.copy(0.4f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Rounded.SmartToy, null, tint = accentColor, modifier = Modifier.size(14.dp))
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+
+                Column(
+                    modifier = Modifier.weight(1f, fill = false),
+                    horizontalAlignment = if (isAI) Alignment.Start else Alignment.End
+                ) {
                     Text(
                         text = if (isAI) "Canara AI" else "Caller",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        fontSize = 10.sp,
+                        color = TextDim,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.5.sp,
+                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
                     )
-                    Surface(
-                        shape = RoundedCornerShape(
-                            topStart = 20.dp,
-                            topEnd = 20.dp,
-                            bottomStart = if (isAI) 4.dp else 20.dp,
-                            bottomEnd = if (isAI) 20.dp else 4.dp
-                        ),
-                        color = if (isAI) Color(0xFF0F4C81) else MaterialTheme.colorScheme.secondaryContainer, // Canara Blue for AI
-                        tonalElevation = 2.dp
+                    Box(
+                        modifier = Modifier
+                            .clip(
+                                RoundedCornerShape(
+                                    topStart = 16.dp, topEnd = 16.dp,
+                                    bottomStart = if (isAI) 4.dp else 16.dp,
+                                    bottomEnd = if (isAI) 16.dp else 4.dp
+                                )
+                            )
+                            .background(bubbleColor)
+                            .border(
+                                1.dp,
+                                borderColor,
+                                RoundedCornerShape(
+                                    topStart = 16.dp, topEnd = 16.dp,
+                                    bottomStart = if (isAI) 4.dp else 16.dp,
+                                    bottomEnd = if (isAI) 16.dp else 4.dp
+                                )
+                            )
+                            .padding(horizontal = 14.dp, vertical = 10.dp)
                     ) {
                         Text(
-                            text = cleanMessage,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = if (isAI) Color.White else MaterialTheme.colorScheme.onSecondaryContainer
+                            text = cleanText,
+                            fontSize = 13.sp,
+                            color = textColor,
+                            lineHeight = 19.sp
                         )
                     }
                 }
@@ -164,218 +348,137 @@ fun TranscriptList(transcript: List<String>) {
     }
 }
 
+// ─── Status Chip ─────────────────────────────────────────────────────────────
 @Composable
-fun VerdictCard(state: ScreeningState) {
-    val (color, icon, label, description) = when (state.verdict) {
-        Verdict.ANALYZING -> Quadruple(
-            MaterialTheme.colorScheme.primary,
-            Icons.Rounded.Search,
-            "Analyzing Caller...",
-            "AI assistant is talking to the caller to verify intent."
-        )
-        Verdict.SAFE -> Quadruple(
-            Color(0xFF4CAF50),
-            Icons.Rounded.CheckCircle,
-            "Verdict: Safe",
-            "This caller appears legitimate. You can answer safely."
-        )
-        Verdict.SUSPICIOUS -> Quadruple(
-            Color(0xFFFF9800),
-            Icons.Rounded.Warning,
-            "Verdict: Suspicious",
-            "Potential telemarketing or low-risk scam detected."
-        )
-        Verdict.FRAUD -> Quadruple(
-            Color(0xFFF44336),
-            Icons.Rounded.Dangerous,
-            "Verdict: FRAUD DETECTED",
-            "High probability of deepfake voice and OTP scam."
-        )
+fun StatusChip(modifier: Modifier, label: String, icon: ImageVector) {
+    val color = when {
+        label == "Analyzing..."   -> CanaraBlue
+        label.contains("Fraud") || label.contains("AI Cloned") || label.contains("VoIP") -> NeonRed
+        label.contains("Uncertain") || label.contains("Suspicious") -> NeonAmber
+        else -> NeonGreen
     }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.1f)),
-        shape = RoundedCornerShape(24.dp),
-        border = CardDefaults.outlinedCardBorder().copy(brush = androidx.compose.ui.graphics.SolidColor(color))
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(color.copy(alpha = 0.08f))
+            .border(1.dp, color.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
+            .padding(vertical = 10.dp, horizontal = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Row(
-            modifier = Modifier.padding(20.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = color,
-                modifier = Modifier.size(40.dp)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column {
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = color
-                )
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun ScreeningActions(state: ScreeningState, onClose: () -> Unit) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        tonalElevation = 16.dp,
-        color = MaterialTheme.colorScheme.surface
-    ) {
-        Row(
-            modifier = Modifier
-                .navigationBarsPadding()
-                .padding(horizontal = 24.dp, vertical = 20.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            // End Call Button
-            LargeActionCircle(
-                icon = Icons.Rounded.CallEnd,
-                color = Color(0xFFE53935),
-                label = "End Call",
-                onClick = onClose
-            )
-
-            // Take Over Button
-            LargeActionCircle(
-                icon = Icons.Rounded.PersonSearch,
-                color = Color(0xFF0F4C81), // Canara Blue
-                label = "Take Over",
-                onClick = onClose
-            )
-
-            // Answer Button
-            if (state.verdict != Verdict.FRAUD) {
-                LargeActionCircle(
-                    icon = Icons.Rounded.Call,
-                    color = Color(0xFF43A047),
-                    label = "Answer",
-                    onClick = onClose
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun LargeActionCircle(
-    icon: ImageVector,
-    color: Color,
-    label: String,
-    onClick: () -> Unit
-) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        FilledIconButton(
-            onClick = onClick,
-            modifier = Modifier.size(64.dp),
-            colors = IconButtonDefaults.filledIconButtonColors(containerColor = color)
-        ) {
-            Icon(icon, contentDescription = label, tint = Color.White, modifier = Modifier.size(32.dp))
-        }
+        Icon(icon, null, tint = color, modifier = Modifier.size(16.dp))
         Text(
             text = label,
-            modifier = Modifier.padding(top = 8.dp),
-            style = MaterialTheme.typography.labelLarge
+            fontSize = 9.sp,
+            color = color,
+            fontWeight = FontWeight.Bold,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            lineHeight = 12.sp
         )
     }
 }
 
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true, device = "spec:width=411dp,height=891dp")
+// ─── Verdict Banner ───────────────────────────────────────────────────────────
 @Composable
-fun PreviewScreeningFraud() {
-    MyApplicationTheme {
-        ScreeningScreen(
-            state = ScreeningState(
-                phoneNumber = "+91 98765 43210",
-                verdict = Verdict.FRAUD,
-                transcript = listOf(
-                    "KavachAI: Hello, identifying caller...",
-                    "Caller: Your account is blocked. Tell me the OTP I just sent.",
-                    "KavachAI: ALERT: OTP request detected. Analyzing voice...",
-                    "KavachAI: Synthetic voice detected. Deepfake probability: High."
-                ),
-                isAnalysisComplete = true,
-                confidenceScore = 0.98f
-            ),
-            onClose = {}
-        )
-    }
-}
-
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true, device = "spec:width=411dp,height=891dp")
-@Composable
-fun PreviewScreeningAnalyzing() {
-    MyApplicationTheme {
-        ScreeningScreen(
-            state = ScreeningState(
-                phoneNumber = "+91 12345 67890",
-                verdict = Verdict.ANALYZING,
-                transcript = listOf(
-                    "KavachAI: Hello, whom am I speaking with?",
-                    "Caller: Hi, this is Rajesh from your local community center."
-                )
-            ),
-            onClose = {}
-        )
-    }
-}
-
-private data class Quadruple<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)
-
-@Composable
-fun StatusCheckRows(state: ScreeningState) {
-    Column(
-        modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        StatusRow(label = "Voice Signature", status = state.voiceStatus)
-        StatusRow(label = "Origin Network", status = state.originStatus)
-        StatusRow(label = "Security Registry", status = state.dbStatus)
-    }
-}
-
-@Composable
-fun StatusRow(label: String, status: String) {
-    val (color, icon) = when {
-        status == "Analyzing..." -> Pair(MaterialTheme.colorScheme.primary, Icons.Rounded.Sync)
-        status.contains("Clean") || status.contains("Real") || status.contains("Jio") || status.contains("Airtel") || status.contains("Family") || status.contains("Helpline") -> 
-            Pair(Color(0xFF4CAF50), Icons.Rounded.CheckCircle)
-        status.contains("Uncertain") || status.contains("VoIP") || status.contains("Suspicious") ->
-            Pair(Color(0xFFFF9800), Icons.Rounded.Warning)
-        else -> Pair(Color(0xFFF44336), Icons.Rounded.Dangerous)
+fun VerdictBanner(state: ScreeningState, accentColor: Color) {
+    val (icon, label, desc) = when (state.verdict) {
+        Verdict.ANALYZING  -> Triple(Icons.Rounded.Search,    "Analyzing Caller...",   "AI is actively interrogating the caller")
+        Verdict.SAFE       -> Triple(Icons.Rounded.CheckCircle, "Verdict: SAFE",        "Caller appears legitimate — safe to answer")
+        Verdict.SUSPICIOUS -> Triple(Icons.Rounded.Warning,   "Verdict: SUSPICIOUS",   "Potential spam or unsolicited call detected")
+        Verdict.FRAUD      -> Triple(Icons.Rounded.Dangerous,  "FRAUD DETECTED",        "Canara Bank phishing attempt blocked!")
     }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            .background(color.copy(alpha = 0.08f))
-            .padding(horizontal = 16.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+            .padding(horizontal = 20.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(accentColor.copy(alpha = 0.08f))
+            .border(1.dp, accentColor.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = label, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = color,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(text = status, style = MaterialTheme.typography.bodyMedium, color = color, fontWeight = FontWeight.Bold)
+        Icon(icon, null, tint = accentColor, modifier = Modifier.size(32.dp))
+        Spacer(modifier = Modifier.width(12.dp))
+        Column {
+            Text(label, fontWeight = FontWeight.ExtraBold, fontSize = 15.sp, color = accentColor)
+            Text(desc, fontSize = 11.sp, color = TextSecondary, modifier = Modifier.padding(top = 2.dp))
         }
+    }
+}
+
+// ─── Action Buttons Row ───────────────────────────────────────────────────────
+@Composable
+fun ActionButtonsRow(state: ScreeningState, onClose: () -> Unit, accentColor: Color) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // End Call
+        GlowActionButton(
+            modifier = Modifier.weight(1f),
+            icon = Icons.Rounded.CallEnd,
+            label = "End",
+            color = NeonRed,
+            onClick = onClose
+        )
+        // Take Over
+        GlowActionButton(
+            modifier = Modifier.weight(1f),
+            icon = Icons.Rounded.PersonSearch,
+            label = "Take Over",
+            color = CanaraBlue,
+            onClick = onClose
+        )
+        // Answer (only if not fraud)
+        if (state.verdict != Verdict.FRAUD) {
+            GlowActionButton(
+                modifier = Modifier.weight(1f),
+                icon = Icons.Rounded.Call,
+                label = "Answer",
+                color = NeonGreen,
+                onClick = onClose
+            )
+        }
+    }
+}
+
+@Composable
+fun GlowActionButton(
+    modifier: Modifier,
+    icon: ImageVector,
+    label: String,
+    color: Color,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            // Glow
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .blur(16.dp)
+                    .background(color.copy(alpha = 0.4f), CircleShape)
+            )
+            FilledIconButton(
+                onClick = onClick,
+                modifier = Modifier.size(56.dp),
+                colors = IconButtonDefaults.filledIconButtonColors(containerColor = color.copy(alpha = 0.15f))
+            ) {
+                Icon(icon, null, tint = color, modifier = Modifier.size(26.dp))
+            }
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .border(1.dp, color.copy(alpha = 0.5f), CircleShape)
+            )
+        }
+        Text(label, fontSize = 11.sp, color = TextSecondary, fontWeight = FontWeight.SemiBold)
     }
 }
