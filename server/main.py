@@ -60,9 +60,10 @@ SAFE_WHITELIST = {
         "origin_status": "Jio Network",
         "db_status": "Clean",
         "transcript": [
-            "KavachAI: Hello, Canara Security screening...",
+            "KavachAI: Hello, this is Canara Bank's security verification system. Please state your name and reason for calling.",
             "Caller: Hey! Just calling about dinner.",
-            "KavachAI: Voice signature matched. Safe."
+            "KavachAI: Cross-referencing caller ID with Jio/Airtel network logs...",
+            "KavachAI: Voice signature matched. Safe personal contact."
         ]
     },
     "8888822222": {
@@ -74,9 +75,10 @@ SAFE_WHITELIST = {
         "origin_status": "Airtel Network",
         "db_status": "Clean",
         "transcript": [
-            "KavachAI: Hello, this is Canara Bank Security.",
+            "KavachAI: Hello, this is Canara Bank's security verification system. Please state your name and reason for calling.",
             "Caller: Hello, this is the official Canara Bank Service department.",
-            "KavachAI: Verified institutional caller."
+            "KavachAI: Verifying number routing through Jio/Airtel telecom networks...",
+            "KavachAI: Network path verified. Official institutional caller."
         ]
     }
 }
@@ -144,9 +146,10 @@ def check_caller(phoneNumber: str = Query(..., description="The phone number to 
         verdict = "SAFE"
         details = "Verified local community representative."
         transcript = [
-            "KavachAI: Hello, identifying caller...",
+            "KavachAI: Hello, this is Canara Bank's security verification system. Please state your name and reason for calling.",
             "Caller: Hi, this is Rajesh from your local community center.",
-            "KavachAI: Verified local community number."
+            "KavachAI: Cross-referencing caller ID with official databases...",
+            "KavachAI: Verified local community number. Safe to answer."
         ]
     elif clean_number.endswith("2"):
         voice_s = "Real Human"
@@ -156,9 +159,11 @@ def check_caller(phoneNumber: str = Query(..., description="The phone number to 
         verdict = "SUSPICIOUS"
         details = "Unsolicited loan request offering rewards."
         transcript = [
-            "KavachAI: Hello, this is Canara Security AI. State your purpose.",
+            "KavachAI: Hello, this is Canara Bank's security verification system. Please state your name and reason for calling.",
             "Caller: I'm calling about a pre-approved Canara Bank loan!",
-            "KavachAI: Suspicious request. Not calling from an official bank channel."
+            "KavachAI: Verifying number routing through Jio/Airtel telecom networks...",
+            "KavachAI: Alert: Number is not routed through official Canara Bank servers.",
+            "KavachAI: Suspicious request. Potential marketing call."
         ]
     else:
         voice_s = "AI Cloned (96%)"
@@ -168,9 +173,10 @@ def check_caller(phoneNumber: str = Query(..., description="The phone number to 
         verdict = "FRAUD"
         details = "CRITICAL WARNING: Canara Bank account phishing. Detected synthetic robo-voice."
         transcript = [
-            "KavachAI: Hello, this is Canara Security AI. State your name and purpose.",
+            "KavachAI: Hello, this is Canara Bank's security verification system. Please state your name and reason for calling.",
             "Caller (Robo-AI): This is an automated alert from Canara Bank. We detected a suspicious transfer of Rs. 45,000.",
-            "KavachAI: Checking Canara Server database... No active bank request found. Analyzing voice clone signature...",
+            "KavachAI: Interrogating server connection... Routing traced to unknown VoIP network, not Airtel/Jio.",
+            "KavachAI: Checking Canara Server database... No active bank request found.",
             "Caller (Robo-AI): System alert. Repeat the OTP immediately to block this transfer.",
             "KavachAI: WARNING: Deepfake voice synthesis probability: 96%. Phishing signature verified (OTP demand).",
             "KavachAI: TERMINATING CALL. Blocked banking threat."

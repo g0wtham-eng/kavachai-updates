@@ -23,9 +23,6 @@ class KavachInCallService : InCallService(), TextToSpeech.OnInitListener {
 
     private val TAG = "KavachInCallService"
     private var activeCall: Call? = null
-    private var tts: TextToSpeech? = null
-    private var isTtsReady = false
-    private lateinit var audioManager: AudioManager
     private val serviceScope = CoroutineScope(Dispatchers.Main + Job())
     private val disconnectReceiver = object : android.content.BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -50,8 +47,6 @@ class KavachInCallService : InCallService(), TextToSpeech.OnInitListener {
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "InCallService created")
-        audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        tts = TextToSpeech(this, this)
 
         val filter = android.content.IntentFilter("com.canara.kavachai.TRIGGER_DISCONNECT")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -132,9 +127,6 @@ class KavachInCallService : InCallService(), TextToSpeech.OnInitListener {
             } catch (e: java.lang.Exception) {
                 Log.e(TAG, "Failed to clear log file", e)
             }
-
-            // Start Text Conversation immediately (no TTS wait)
-            startConversation(callerNumber)
         }
     }
 
@@ -150,7 +142,6 @@ class KavachInCallService : InCallService(), TextToSpeech.OnInitListener {
         activeCall?.unregisterCallback(callCallback)
         activeCall = null
         serviceScope.coroutineContext.cancelChildren()
-        deactivateSpeakerphone()
         
         try {
             val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -165,123 +156,8 @@ class KavachInCallService : InCallService(), TextToSpeech.OnInitListener {
         sendBroadcast(intent)
     }
 
-    override fun onInit(status: Int) {
-        if (status == TextToSpeech.SUCCESS) {
-            val result = tts?.setLanguage(Locale("en", "IN"))
-            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                tts?.language = Locale.US
-            }
-
-            val audioAttributes = AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                .build()
-            tts?.setAudioAttributes(audioAttributes)
-
-            isTtsReady = true
-            Log.d(TAG, "TTS initialized in InCallService")
-
-            // If a call is already active by the time TTS loads
-            if (activeCall != null) {
-                val callerNumber = activeCall?.details?.handle?.schemeSpecificPart ?: "Unknown"
-                startConversation(callerNumber)
-            }
-        } else {
-            Log.e(TAG, "TTS initialization failed")
-        }
-    }
-
-    private fun startConversation(phoneNumber: String) {
-        serviceScope.launch {
-            delay(1000) // Small buffer to ensure audio connection stabilizes after answering
-            activateSpeakerphone()
-
-            speakLine("Hello, you have reached Mr. Gowtham's phone. This is KavachAI, his personal call assistant. May I know who is calling and what is the reason for calling Mr. Gowtham?")
-            delay(6000)
-            
-            if (phoneNumber.endsWith("1")) {
-                speakLine("Verifying your identity... Cross-referencing caller ID with trusted contacts registry.")
-                delay(3000)
-                speakLine("Identity confirmed. You are a verified contact of Mr. Gowtham. Connecting you now.")
-            } else if (phoneNumber.endsWith("2")) {
-                speakLine("Running security check on your number...")
-                delay(3000)
-                speakLine("Alert: Your number is not registered in Mr. Gowtham's trusted contacts. This call has been flagged as suspicious.")
-                delay(2000)
-                speakLine("Mr. Gowtham will be notified. If this is urgent, please leave a message after the tone.")
-            } else {
-                speakLine("Scanning your connection... Routing traced to an unregistered VoIP network.")
-                delay(3000)
-                speakLine("WARNING: Voice pattern analysis indicates 96 percent probability of synthetic speech. Potential phishing attempt targeting Mr. Gowtham detected.")
-                delay(3000)
-                speakLine("SECURITY ALERT: This call has been blocked and reported. Mr. Gowtham will not be disturbed. Disconnecting now.")
-                delay(2000)
-                activeCall?.disconnect() // Hang up the call directly!
-            }
-        }
-    }
-
-    private fun speakLine(text: String) {
-        Log.d(TAG, "AI message: $text")
-        // No voice output — purely text-based silent screening
-        
-        // Save conversation line to file
-        try {
-            val file = java.io.File(filesDir, "conversation_log.txt")
-            file.appendText("KavachAI: $text\n")
-        } catch (e: java.lang.Exception) {
-            Log.e(TAG, "Failed to write transcript line to file", e)
-        }
-
-        // Broadcast line to UI so it can type it out
-        val intent = Intent("com.canara.kavachai.NEW_TRANSCRIPT")
-        intent.putExtra("message", "KavachAI: $text")
-        sendBroadcast(intent)
-
-        // Post live notification showing the conversation dialogue
-        try {
-            val channelId = "kavach_transcript_channel"
-            val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val channel = NotificationChannel(
-                    channelId,
-                    "Kavach Conversation Logs",
-                    NotificationManager.IMPORTANCE_LOW
-                )
-                nm.createNotificationChannel(channel)
-            }
-            val notification = NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(android.R.drawable.ic_btn_speak_now)
-                .setContentTitle("KavachAI Conversation")
-                .setContentText(text)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .build()
-            nm.notify(1002, notification)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to show transcript notification", e)
-        }
-    }
-
-    @Suppress("DEPRECATION")
-    private fun activateSpeakerphone() {
-        // No speakerphone — silent mode, just text messages on screen
-        Log.d(TAG, "Silent mode — no audio routing needed")
-    }
-
-    @Suppress("DEPRECATION")
-    private fun deactivateSpeakerphone() {
-        try {
-            setAudioRoute(android.telecom.CallAudioState.ROUTE_EARPIECE)
-            audioManager.mode = AudioManager.MODE_NORMAL
-        } catch (e: Exception) {
-            Log.e(TAG, "Error deactivating earpiece routing", e)
-        }
-    }
-
     override fun onDestroy() {
         cleanupCall()
-        tts?.stop()
-        tts?.shutdown()
         try {
             unregisterReceiver(disconnectReceiver)
         } catch (e: java.lang.Exception) {

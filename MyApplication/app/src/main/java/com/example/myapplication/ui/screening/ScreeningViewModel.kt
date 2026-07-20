@@ -53,43 +53,71 @@ class ScreeningViewModel : ViewModel() {
             }
         }
     }
-    fun sendUserMessage(context: android.content.Context, message: String) {
-        // 1. Add user message to transcript and file
-        addTranscriptMessage("Caller: $message")
-        saveMessageToFile(context, "Caller: $message")
+    fun processCallerVoice(context: android.content.Context, text: String) {
+        addTranscriptMessage("Caller: $text")
+        saveMessageToFile(context, "Caller: $text")
 
-        // Broadcast user message to speak aloud (using lower pitch/scammer settings)
-        val intentUser = android.content.Intent("com.canara.kavachai.NEW_TRANSCRIPT_TTS").apply {
-            putExtra("message", message)
-            putExtra("isAI", false)
-        }
-        context.sendBroadcast(intentUser)
-        
-        // 2. Respond to the user input
+        // Simple mocked LLM intent detection for the caller
         viewModelScope.launch {
-            delay(1000)
+            val lower = text.lowercase()
+            val reply = when {
+                lower.contains("amazon") || lower.contains("flipkart") || lower.contains("delivery") -> {
+                    "Delivery intent detected. Could you please confirm the order number or what you are delivering?"
+                }
+                lower.contains("bank") || lower.contains("otp") || lower.contains("card") -> {
+                    "Financial inquiry detected. Mr. Gowtham does not share account details over phone. What is your exact branch name?"
+                }
+                lower.contains("interview") || lower.contains("hr") || lower.contains("job") -> {
+                    "Recruitment inquiry detected. Can you state your company name and the role you are hiring for?"
+                }
+                else -> null // AI doesn't auto-reply to everything; it waits for the user or specific keywords
+            }
+
+            if (reply != null) {
+                delay(1500)
+                addTranscriptMessage("KavachAI: $reply")
+                saveMessageToFile(context, "KavachAI: $reply")
+                val intentAgent = android.content.Intent("com.canara.kavachai.NEW_TRANSCRIPT_TTS").apply {
+                    putExtra("message", reply)
+                    putExtra("isAI", true)
+                }
+                context.sendBroadcast(intentAgent)
+            }
+        }
+    }
+
+    fun sendUserMessage(context: android.content.Context, message: String) {
+        // 1. Add user message to transcript (Silent instruction to AI)
+        addTranscriptMessage("You (Instruction): $message")
+        saveMessageToFile(context, "Owner: $message")
+        
+        // 2. Respond to the user input by generating a polished out-loud phrase
+        viewModelScope.launch {
             val lower = message.lowercase()
             val reply = when {
-                lower.contains("who") || lower.contains("name") || lower.contains("identity") -> {
-                    "Scanning Caller ID... Traced connection to suspect local VoIP network."
+                lower.contains("busy") || lower.contains("later") -> {
+                    "I'm sorry, Mr. Gowtham is currently busy and unable to take this call. I will notify him to return your call when he is available. Thank you."
                 }
-                lower.contains("safe") || lower.contains("legit") || lower.contains("trust") -> {
-                    "Threat confidence score is low. Advise caution."
+                lower.contains("ask purpose") || lower.contains("why") || lower.contains("purpose") -> {
+                    "Could you please clarify the exact purpose of your call? I need this information to notify Mr. Gowtham."
+                }
+                lower.contains("not interested") || lower.contains("no thanks") -> {
+                    "Mr. Gowtham is not interested in this offer at the moment. Please remove his number from your calling list. Thank you and goodbye."
                 }
                 lower.contains("block") || lower.contains("disconnect") || lower.contains("hang") -> {
-                    "ALERT: Phishing threat level critical. Terminating call now."
-                }
-                lower.contains("hello") || lower.contains("hi") -> {
-                    "KavachAI active. Interrogating incoming line. State security check request."
+                    "SECURITY ALERT: This call has been marked as spam. Terminating connection now."
                 }
                 else -> {
-                    "Analyzing caller voice profile... No threat match found in local registry."
+                    // Fallback to echo a polished version of what the user typed
+                    "Mr. Gowtham's instruction: $message"
                 }
             }
+            
+            // Add the generated response to the chat
             addTranscriptMessage("KavachAI: $reply")
             saveMessageToFile(context, "KavachAI: $reply")
 
-            // Broadcast agent response to speak aloud (using high pitch/AI settings)
+            // Broadcast agent response to speak aloud
             val intentAgent = android.content.Intent("com.canara.kavachai.NEW_TRANSCRIPT_TTS").apply {
                 putExtra("message", reply)
                 putExtra("isAI", true)
@@ -97,8 +125,8 @@ class ScreeningViewModel : ViewModel() {
             context.sendBroadcast(intentAgent)
             
             // If they said block/disconnect, trigger disconnect via broadcast
-            if (lower.contains("block") || lower.contains("disconnect") || lower.contains("hang")) {
-                delay(1000)
+            if (lower.contains("block") || lower.contains("disconnect") || lower.contains("hang") || lower.contains("not interested")) {
+                delay(5000) // wait for TTS to finish before hanging up
                 val disconnectIntent = android.content.Intent("com.canara.kavachai.TRIGGER_DISCONNECT")
                 context.sendBroadcast(disconnectIntent)
             }
