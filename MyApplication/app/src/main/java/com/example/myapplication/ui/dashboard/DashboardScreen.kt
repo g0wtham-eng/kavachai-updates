@@ -4,6 +4,10 @@ import android.app.role.RoleManager
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.provider.Settings
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
+import android.content.pm.PackageManager
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -44,14 +48,24 @@ fun DashboardScreen(onNavigateToHistory: () -> Unit) {
             context.getSystemService(RoleManager::class.java) else null
     }
     var isCallScreeningEnabled by remember { mutableStateOf(false) }
+
     val roleLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == android.app.Activity.RESULT_OK) isCallScreeningEnabled = true
     }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && roleManager != null) {
+            roleLauncher.launch(roleManager.createRequestRoleIntent(RoleManager.ROLE_DIALER))
+        }
+    }
+
     LaunchedEffect(Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && roleManager != null)
-            isCallScreeningEnabled = roleManager.isRoleHeld(RoleManager.ROLE_CALL_SCREENING)
+            isCallScreeningEnabled = roleManager.isRoleHeld(RoleManager.ROLE_DIALER)
     }
 
     Box(
@@ -94,7 +108,15 @@ fun DashboardScreen(onNavigateToHistory: () -> Unit) {
                     isEnabled = isCallScreeningEnabled,
                     onClick = {
                         if (!isCallScreeningEnabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && roleManager != null) {
-                            roleLauncher.launch(roleManager.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING))
+                            permissionLauncher.launch(
+                                arrayOf(
+                                    android.Manifest.permission.READ_CONTACTS,
+                                    android.Manifest.permission.WRITE_CONTACTS,
+                                    android.Manifest.permission.READ_CALL_LOG,
+                                    android.Manifest.permission.WRITE_CALL_LOG,
+                                    android.Manifest.permission.RECORD_AUDIO
+                                )
+                            )
                         }
                     }
                 )

@@ -1,0 +1,69 @@
+name: Publish APK & Manifest
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x MyApplication/gradlew
+
+      - name: Build debug APK
+        run: |
+          cd MyApplication
+          ./gradlew assembleDebug
+
+      - name: Compute SHA-256 checksum
+        id: checksum
+        run: |
+          APK_PATH=MyApplication/app/build/outputs/apk/debug/app-debug.apk
+          echo "checksum=$(sha256sum $APK_PATH | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+
+      - name: Create manifest.json
+        run: |
+          cat <<EOF > manifest.json
+          {
+            "latestVersionCode": ${{ github.run_number }},
+            "apkUrl": "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/app-debug.apk",
+            "checksum": "${{ steps.checksum.outputs.checksum }}"
+          }
+          EOF
+
+      - name: Commit and push manifest.json
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add manifest.json
+          git commit -m "Update manifest.json for version ${{ github.run_number }} [skip ci]" || echo "No changes to commit"
+          # Push back to the main branch
+          git push origin HEAD:main
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          files: |
+            MyApplication/app/build/outputs/apk/debug/app-debug.apk
+            manifest.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

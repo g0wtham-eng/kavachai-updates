@@ -1,38 +1,43 @@
 package com.example.myapplication.ui.screening
 
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
+import android.util.Log
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.example.myapplication.ui.theme.MyApplicationTheme
-
-import android.speech.tts.TextToSpeech
 import java.util.Locale
-import androidx.compose.runtime.LaunchedEffect
 
 class ScreeningActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
     companion object {
         const val EXTRA_PHONE_NUMBER = "EXTRA_PHONE_NUMBER"
+        private const val TAG = "ScreeningActivity"
     }
 
     private val viewModel: ScreeningViewModel by viewModels()
     private var tts: TextToSpeech? = null
-    private var lastSpokenMessageIndex = -1
+    private var isTtsReady = false
+    private val pendingMessages = mutableListOf<String>()
+    private var lastSpokenIndex = -1
+    private lateinit var audioManager: AudioManager
 
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        // Initialize Text-To-Speech engine
-        tts = TextToSpeech(this, this)
-        
-        // Handle showing over lock screen
+
+        // Show over lock screen
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setShowWhenLocked(true)
             setTurnScreenOn(true)
@@ -46,21 +51,41 @@ class ScreeningActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
         enableEdgeToEdge()
 
-        val phoneNumber = intent.getStringExtra(EXTRA_PHONE_NUMBER) ?: "Unknown"
-        
-        // Auto-enable Speakerphone so the TTS plays into the active call's microphone
-        activateSpeakerphone()
+        audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
 
-        viewModel.startScreening(phoneNumber)
+        // Initialize TTS FIRST before anything else (Moved to AIVoiceService)
+        // tts = TextToSpeech(this, this)
+
+        val phoneNumber = intent.getStringExtra(EXTRA_PHONE_NUMBER) ?: "Unknown"
+        viewModel.setPhoneNumber(phoneNumber)
+
+        // Listen for transcripts from InCallService
+        val receiver = object : android.content.BroadcastReceiver() {
+            override fun onReceive(context: android.content.Context?, intent: android.content.Intent?) {
+                if (intent?.action == "com.canara.kavachai.NEW_TRANSCRIPT") {
+                    val msg = intent.getStringExtra("message") ?: return
+                    viewModel.addTranscriptMessage(msg)
+                } else if (intent?.action == "com.canara.kavachai.CALL_ENDED") {
+                    finish()
+                }
+            }
+        }
+        val filter = android.content.IntentFilter().apply {
+            addAction("com.canara.kavachai.NEW_TRANSCRIPT")
+            addAction("com.canara.kavachai.CALL_ENDED")
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(receiver, filter, RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(receiver, filter)
+        }
 
         setContent {
             MyApplicationTheme {
                 val state by viewModel.uiState.collectAsState()
-                
-                // Observe the dynamic AI screening dialogue transcript and speak new lines out loud!
-                LaunchedEffect(state.transcript) {
-                    speakNewMessages(state.transcript)
-                }
+
+                // UI automatically updates from StateFlow
+
 
                 ScreeningScreen(
                     state = state,
@@ -71,61 +96,51 @@ class ScreeningActivity : ComponentActivity(), TextToSpeech.OnInitListener {
     }
 
     override fun onInit(status: Int) {
-        if (status == TextToSpeech.SUCCESS) {
-            tts?.language = Locale.US
-        }
+        // TTS logic moved to AIVoiceService
     }
 
-    private fun speakNewMessages(messages: List<String>) {
-        if (tts == null) return
-        if (messages.size > lastSpokenMessageIndex + 1) {
-            for (i in (lastSpokenMessageIndex + 1) until messages.size) {
-                val message = messages[i]
-                
-                // Clean the dialogue label prefixes for standard natural reading
-                val speakText = message
-                    .replace("KavachAI:", "Kavach A I says:")
-                    .replace("Caller (Robo-AI):", "The automated caller says:")
-                    .replace("Caller:", "The caller says:")
-                
-                // Differentiate voices: high pitch for KavachAI security, deep/robotic pitch for scammer!
-                if (message.startsWith("KavachAI:")) {
-                    tts?.setPitch(1.2f)       // High-pitched protective AI voice
-                    tts?.setSpeechRate(1.05f)
-                } else {
-                    tts?.setPitch(0.75f)      // Deep, metallic robo-scammer voice
-                    tts?.setSpeechRate(0.9f)
-                }
-                
-                tts?.speak(speakText, TextToSpeech.QUEUE_ADD, null, "MSG_$i")
-            }
-            lastSpokenMessageIndex = messages.size - 1
-        }
-    }
 
+
+    @Suppress("DEPRECATION")
     private fun activateSpeakerphone() {
         try {
-            val audioManager = getSystemService(android.content.Context.AUDIO_SERVICE) as android.media.AudioManager
-            audioManager.mode = android.media.AudioManager.MODE_IN_CALL
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                // Modern API: Request audio focus with USAGE_VOICE_COMMUNICATION
+                val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+                    .setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                            .build()
+                    )
+                    .build()
+                audioManager.requestAudioFocus(focusRequest)
+            }
+            // Force speakerphone ON so the caller hears the TTS
+            audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
             audioManager.isSpeakerphoneOn = true
+            
+            // Maximize voice call volume to ensure mic picks it up
+            val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL)
+            audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, maxVol, 0)
+            
+            Log.d(TAG, "Speakerphone activated. Mode: ${audioManager.mode}")
         } catch (e: Exception) {
-            android.util.Log.e("ScreeningActivity", "Error turning on speakerphone", e)
+            Log.e(TAG, "Error activating speakerphone", e)
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun deactivateSpeakerphone() {
         try {
-            val audioManager = getSystemService(android.content.Context.AUDIO_SERVICE) as android.media.AudioManager
             audioManager.isSpeakerphoneOn = false
-            audioManager.mode = android.media.AudioManager.MODE_NORMAL
+            audioManager.mode = AudioManager.MODE_NORMAL
         } catch (e: Exception) {
-            android.util.Log.e("ScreeningActivity", "Error turning off speakerphone", e)
+            Log.e(TAG, "Error deactivating speakerphone", e)
         }
     }
 
     override fun onDestroy() {
-        tts?.stop()
-        tts?.shutdown()
         deactivateSpeakerphone()
         super.onDestroy()
     }

@@ -41,7 +41,12 @@ class MainActivity : ComponentActivity() {
                 
                 LaunchedEffect(Unit) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && roleManager != null) {
-                        isSetupRequired = !roleManager.isRoleHeld(RoleManager.ROLE_CALL_SCREENING)
+                        isSetupRequired = !roleManager.isRoleHeld(RoleManager.ROLE_DIALER)
+                    }
+                    try {
+                        com.example.myapplication.util.UpdateHelper.checkForUpdates(context)
+                    } catch (e: Exception) {
+                        android.util.Log.e("MainActivity", "Error checking for updates", e)
                     }
                 }
 
@@ -131,13 +136,13 @@ fun KavachSetupScreen(onSetupComplete: () -> Unit) {
             Button(
                 onClick = {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && roleManager != null) {
-                        val intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING)
+                        val intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_DIALER)
                         roleLauncher.launch(intent)
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(stringResource(R.string.setup_role_step))
+                Text("Set as Default Phone App (Required)")
             }
             
             Spacer(modifier = Modifier.height(16.dp))
