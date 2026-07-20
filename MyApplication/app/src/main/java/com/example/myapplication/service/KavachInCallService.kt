@@ -14,6 +14,10 @@ import android.util.Log
 import com.example.myapplication.ui.screening.ScreeningActivity
 import kotlinx.coroutines.*
 import java.util.Locale
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import androidx.core.app.NotificationCompat
 
 class KavachInCallService : InCallService(), TextToSpeech.OnInitListener {
 
@@ -55,17 +59,55 @@ class KavachInCallService : InCallService(), TextToSpeech.OnInitListener {
             Log.d(TAG, "Answering call programmatically...")
             call.answer(VideoProfile.STATE_AUDIO_ONLY)
 
-            // Force launch our ScreeningActivity UI because we are the Default Dialer
+            // Create full screen intent notification to bypass ColorOS background launch block
             try {
+                val channelId = "kavach_screening_channel"
+                val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val channel = NotificationChannel(
+                        channelId,
+                        "Kavach Call Screening",
+                        NotificationManager.IMPORTANCE_HIGH
+                    ).apply {
+                        description = "Displays the screening interface during incoming calls."
+                        enableLights(true)
+                        enableVibration(false)
+                        setSound(null, null)
+                    }
+                    nm.createNotificationChannel(channel)
+                }
+
                 val intent = Intent(this, ScreeningActivity::class.java).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
                     putExtra(ScreeningActivity.EXTRA_PHONE_NUMBER, callerNumber)
                 }
+
+                val pendingIntent = PendingIntent.getActivity(
+                    this,
+                    0,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+
+                val notification = NotificationCompat.Builder(this, channelId)
+                    .setSmallIcon(android.R.drawable.sym_call_incoming)
+                    .setContentTitle("KavachAI Screening")
+                    .setContentText("Screening incoming call...")
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setCategory(NotificationCompat.CATEGORY_CALL)
+                    .setFullScreenIntent(pendingIntent, true)
+                    .setAutoCancel(true)
+                    .build()
+
+                nm.notify(1001, notification)
+                Log.d(TAG, "Posted full-screen notification for incoming call")
+
+                // Fallback direct activity launch
                 startActivity(intent)
-                Log.d(TAG, "Successfully launched ScreeningActivity UI from InCallService")
+                Log.d(TAG, "Direct launch backup executed")
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to launch ScreeningActivity", e)
+                Log.e(TAG, "Failed to launch ScreeningActivity via notification/intent", e)
             }
 
             // Start TTS Conversation
@@ -88,6 +130,13 @@ class KavachInCallService : InCallService(), TextToSpeech.OnInitListener {
         activeCall = null
         serviceScope.coroutineContext.cancelChildren()
         deactivateSpeakerphone()
+        
+        try {
+            val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            nm.cancel(1001)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to cancel screening notification", e)
+        }
         
         // Notify Activity to close
         val intent = Intent("com.canara.kavachai.CALL_ENDED")
