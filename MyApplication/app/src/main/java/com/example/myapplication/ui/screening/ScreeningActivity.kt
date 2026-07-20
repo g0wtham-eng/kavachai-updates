@@ -89,7 +89,8 @@ class ScreeningActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
                 ScreeningScreen(
                     state = state,
-                    onClose = { finish() }
+                    onClose = { finish() },
+                    onSendMessage = { text -> viewModel.sendUserMessage(this@ScreeningActivity, text) }
                 )
             }
         }

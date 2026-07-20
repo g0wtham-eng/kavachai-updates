@@ -27,6 +27,14 @@ class KavachInCallService : InCallService(), TextToSpeech.OnInitListener {
     private var isTtsReady = false
     private lateinit var audioManager: AudioManager
     private val serviceScope = CoroutineScope(Dispatchers.Main + Job())
+    private val disconnectReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == "com.canara.kavachai.TRIGGER_DISCONNECT") {
+                Log.d(TAG, "Disconnect triggered via broadcast")
+                activeCall?.disconnect()
+            }
+        }
+    }
 
     private val callCallback = object : Call.Callback() {
         override fun onStateChanged(call: Call, state: Int) {
@@ -44,6 +52,13 @@ class KavachInCallService : InCallService(), TextToSpeech.OnInitListener {
         Log.d(TAG, "InCallService created")
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         tts = TextToSpeech(this, this)
+
+        val filter = android.content.IntentFilter("com.canara.kavachai.TRIGGER_DISCONNECT")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(disconnectReceiver, filter, RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(disconnectReceiver, filter)
+        }
     }
 
     override fun onCallAdded(call: Call) {
@@ -110,10 +125,16 @@ class KavachInCallService : InCallService(), TextToSpeech.OnInitListener {
                 Log.e(TAG, "Failed to launch ScreeningActivity via notification/intent", e)
             }
 
-            // Start TTS Conversation
-            if (isTtsReady) {
-                startConversation(callerNumber)
+            // Clear previous log file at start of call
+            try {
+                val file = java.io.File(filesDir, "conversation_log.txt")
+                file.writeText("")
+            } catch (e: java.lang.Exception) {
+                Log.e(TAG, "Failed to clear log file", e)
             }
+
+            // Start Text Conversation immediately (no TTS wait)
+            startConversation(callerNumber)
         }
     }
 
@@ -134,6 +155,7 @@ class KavachInCallService : InCallService(), TextToSpeech.OnInitListener {
         try {
             val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             nm.cancel(1001)
+            nm.cancel(1002)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to cancel screening notification", e)
         }
@@ -201,53 +223,70 @@ class KavachInCallService : InCallService(), TextToSpeech.OnInitListener {
 
     private fun speakLine(text: String) {
         Log.d(TAG, "AI speaking: $text")
-        tts?.setPitch(1.15f)
-        tts?.setSpeechRate(1.05f)
-        tts?.speak(text, TextToSpeech.QUEUE_ADD, null, "UTT_${System.currentTimeMillis()}")
+        // Comment out TTS voice speech to perform a purely text-based screening
+        // tts?.setPitch(1.15f)
+        // tts?.setSpeechRate(1.05f)
+        // tts?.speak(text, TextToSpeech.QUEUE_ADD, null, "UTT_${System.currentTimeMillis()}")
         
+        // Save conversation line to file
+        try {
+            val file = java.io.File(filesDir, "conversation_log.txt")
+            file.appendText("KavachAI: $text\n")
+        } catch (e: java.lang.Exception) {
+            Log.e(TAG, "Failed to write transcript line to file", e)
+        }
+
         // Broadcast line to UI so it can type it out
         val intent = Intent("com.canara.kavachai.NEW_TRANSCRIPT")
         intent.putExtra("message", "KavachAI: $text")
         sendBroadcast(intent)
+
+        // Post live notification showing the conversation dialogue
+        try {
+            val channelId = "kavach_transcript_channel"
+            val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val channel = NotificationChannel(
+                    channelId,
+                    "Kavach Conversation Logs",
+                    NotificationManager.IMPORTANCE_LOW
+                )
+                nm.createNotificationChannel(channel)
+            }
+            val notification = NotificationCompat.Builder(this, channelId)
+                .setSmallIcon(android.R.drawable.ic_btn_speak_now)
+                .setContentTitle("KavachAI Conversation")
+                .setContentText(text)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .build()
+            nm.notify(1002, notification)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to show transcript notification", e)
+        }
     }
 
     @Suppress("DEPRECATION")
     private fun activateSpeakerphone() {
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
-                    .setAudioAttributes(
-                        AudioAttributes.Builder()
-                            .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-                            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                            .build()
-                    )
-                    .build()
-                val focusResult = audioManager.requestAudioFocus(focusRequest)
-                Log.d(TAG, "Audio focus request result: $focusResult")
-                audioManager.requestAudioFocus(focusRequest)
-            }
-            
-            // Because we are InCallService, we MUST use MODE_IN_CALL to inject audio
-            audioManager.mode = AudioManager.MODE_IN_CALL
-            audioManager.isSpeakerphoneOn = true
+            // Route call audio to earpiece by default (no speakerphone blast)
+            setAudioRoute(android.telecom.CallAudioState.ROUTE_EARPIECE)
             
             val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL)
             audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, maxVol, 0)
             
-            Log.d(TAG, "Speakerphone / IN_CALL mode activated from InCallService")
+            Log.d(TAG, "Audio routed to earpiece from InCallService")
         } catch (e: Exception) {
-            Log.e(TAG, "Error activating speakerphone", e)
+            Log.e(TAG, "Error activating earpiece routing", e)
         }
     }
 
     @Suppress("DEPRECATION")
     private fun deactivateSpeakerphone() {
         try {
-            audioManager.isSpeakerphoneOn = false
+            setAudioRoute(android.telecom.CallAudioState.ROUTE_EARPIECE)
             audioManager.mode = AudioManager.MODE_NORMAL
         } catch (e: Exception) {
-            Log.e(TAG, "Error deactivating speakerphone", e)
+            Log.e(TAG, "Error deactivating earpiece routing", e)
         }
     }
 
@@ -255,6 +294,11 @@ class KavachInCallService : InCallService(), TextToSpeech.OnInitListener {
         cleanupCall()
         tts?.stop()
         tts?.shutdown()
+        try {
+            unregisterReceiver(disconnectReceiver)
+        } catch (e: java.lang.Exception) {
+            Log.e(TAG, "Error unregistering receiver", e)
+        }
         Log.d(TAG, "InCallService destroyed")
         super.onDestroy()
     }

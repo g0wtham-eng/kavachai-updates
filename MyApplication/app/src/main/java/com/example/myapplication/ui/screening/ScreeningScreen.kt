@@ -26,11 +26,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.ui.theme.*
+import androidx.compose.foundation.text.BasicTextField
 
 @Composable
 fun ScreeningScreen(
     state: ScreeningState,
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    onSendMessage: (String) -> Unit
 ) {
     val verdictColor = when (state.verdict) {
         Verdict.ANALYZING  -> KavachRed
@@ -219,6 +221,13 @@ fun ScreeningScreen(
             ) {
                 TranscriptChatList(transcript = state.transcript, accentColor = verdictColor)
             }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // ── Chat Input Box ──
+            ChatInputBox(onSendMessage = onSendMessage, accentColor = verdictColor)
 
             Spacer(modifier = Modifier.height(14.dp))
 
@@ -480,5 +489,61 @@ fun GlowActionButton(
             )
         }
         Text(label, fontSize = 11.sp, color = TextSecondary, fontWeight = FontWeight.SemiBold)
+    }
+}
+
+// ─── Chat Input Box ───────────────────────────────────────────────────────────
+@Composable
+fun ChatInputBox(
+    onSendMessage: (String) -> Unit,
+    accentColor: Color
+) {
+    var text by remember { mutableStateOf("") }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 4.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(SurfaceDark)
+            .border(1.dp, accentColor.copy(0.25f), RoundedCornerShape(14.dp))
+            .padding(horizontal = 14.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        BasicTextField(
+            value = text,
+            onValueChange = { text = it },
+            modifier = Modifier.weight(1f),
+            textStyle = androidx.compose.ui.text.TextStyle(
+                color = TextPrimary,
+                fontSize = 14.sp
+            ),
+            decorationBox = { inner ->
+                if (text.isEmpty()) {
+                    Text(
+                        "Ask KavachAI (e.g., 'who', 'safe', 'block')...",
+                        color = TextDim,
+                        fontSize = 14.sp
+                    )
+                }
+                inner()
+            },
+            singleLine = true
+        )
+        IconButton(
+            onClick = {
+                if (text.isNotBlank()) {
+                    onSendMessage(text)
+                    text = ""
+                }
+            },
+            modifier = Modifier.size(36.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Send,
+                contentDescription = "Send Message",
+                tint = accentColor,
+                modifier = Modifier.size(20.dp)
+            )
+        }
     }
 }
