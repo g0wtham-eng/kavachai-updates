@@ -135,6 +135,7 @@ fun DashboardScreen(onNavigateToHistory: () -> Unit) {
                     context.startActivity(
                         Intent(context, ScreeningActivity::class.java).apply {
                             putExtra(ScreeningActivity.EXTRA_PHONE_NUMBER, number)
+                            putExtra("EXTRA_IS_SANDBOX", true)
                         }
                     )
                 })
@@ -167,6 +168,7 @@ fun DashboardScreen(onNavigateToHistory: () -> Unit) {
                             context.startActivity(
                                 Intent(context, ScreeningActivity::class.java).apply {
                                     putExtra(ScreeningActivity.EXTRA_PHONE_NUMBER, "+91 88776 65544")
+                                    putExtra("EXTRA_IS_SANDBOX", true)
                                 }
                             )
                         }

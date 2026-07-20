@@ -57,6 +57,13 @@ class ScreeningViewModel : ViewModel() {
         // 1. Add user message to transcript and file
         addTranscriptMessage("Caller: $message")
         saveMessageToFile(context, "Caller: $message")
+
+        // Broadcast user message to speak aloud (using lower pitch/scammer settings)
+        val intentUser = android.content.Intent("com.canara.kavachai.NEW_TRANSCRIPT_TTS").apply {
+            putExtra("message", message)
+            putExtra("isAI", false)
+        }
+        context.sendBroadcast(intentUser)
         
         // 2. Respond to the user input
         viewModelScope.launch {
@@ -81,6 +88,13 @@ class ScreeningViewModel : ViewModel() {
             }
             addTranscriptMessage("KavachAI: $reply")
             saveMessageToFile(context, "KavachAI: $reply")
+
+            // Broadcast agent response to speak aloud (using high pitch/AI settings)
+            val intentAgent = android.content.Intent("com.canara.kavachai.NEW_TRANSCRIPT_TTS").apply {
+                putExtra("message", reply)
+                putExtra("isAI", true)
+            }
+            context.sendBroadcast(intentAgent)
             
             // If they said block/disconnect, trigger disconnect via broadcast
             if (lower.contains("block") || lower.contains("disconnect") || lower.contains("hang")) {
