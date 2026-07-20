@@ -19,7 +19,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import androidx.core.app.NotificationCompat
 
-class KavachInCallService : InCallService(), TextToSpeech.OnInitListener {
+class KavachInCallService : InCallService() {
 
     private val TAG = "KavachInCallService"
     private var activeCall: Call? = null
