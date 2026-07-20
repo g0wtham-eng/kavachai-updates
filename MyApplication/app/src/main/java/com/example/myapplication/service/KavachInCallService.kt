@@ -196,25 +196,25 @@ class KavachInCallService : InCallService(), TextToSpeech.OnInitListener {
             delay(1000) // Small buffer to ensure audio connection stabilizes after answering
             activateSpeakerphone()
 
-            speakLine("Hello, this is Kavach AI's security verification system. Please state your reason for calling.")
-            delay(5000)
+            speakLine("Hello, you have reached Mr. Gowtham's phone. This is KavachAI, his personal call assistant. May I know who is calling and what is the reason for calling Mr. Gowtham?")
+            delay(6000)
             
             if (phoneNumber.endsWith("1")) {
-                speakLine("Cross-referencing caller ID with Jio Airtel network logs...")
+                speakLine("Verifying your identity... Cross-referencing caller ID with trusted contacts registry.")
                 delay(3000)
-                speakLine("Voice signature matched. Safe personal contact.")
+                speakLine("Identity confirmed. You are a verified contact of Mr. Gowtham. Connecting you now.")
             } else if (phoneNumber.endsWith("2")) {
-                speakLine("Verifying number routing through Jio Airtel telecom networks...")
+                speakLine("Running security check on your number...")
                 delay(3000)
-                speakLine("Alert: Number is not routed through official Kavach servers.")
+                speakLine("Alert: Your number is not registered in Mr. Gowtham's trusted contacts. This call has been flagged as suspicious.")
                 delay(2000)
-                speakLine("Suspicious request. Potential marketing call.")
+                speakLine("Mr. Gowtham will be notified. If this is urgent, please leave a message after the tone.")
             } else {
-                speakLine("Interrogating server connection... Routing traced to unknown VoIP network.")
+                speakLine("Scanning your connection... Routing traced to an unregistered VoIP network.")
                 delay(3000)
-                speakLine("WARNING: Deepfake voice synthesis probability 96 percent. Phishing signature verified.")
+                speakLine("WARNING: Voice pattern analysis indicates 96 percent probability of synthetic speech. Potential phishing attempt targeting Mr. Gowtham detected.")
                 delay(3000)
-                speakLine("TERMINATING CALL. Blocked banking threat.")
+                speakLine("SECURITY ALERT: This call has been blocked and reported. Mr. Gowtham will not be disturbed. Disconnecting now.")
                 delay(2000)
                 activeCall?.disconnect() // Hang up the call directly!
             }
