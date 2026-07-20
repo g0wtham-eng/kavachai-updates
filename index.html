@@ -328,5 +328,16 @@
         </footer>
     </div>
 
+    <script>
+        fetch('manifest.json')
+            .then(res => res.json())
+            .then(data => {
+                const match = data.apkUrl.match(/download\/(v[0-9.]+)\//);
+                if (match) {
+                    document.querySelector('.badge').textContent = 'OTA Release ' + match[1].toUpperCase();
+                }
+            })
+            .catch(err => console.error("Error loading version:", err));
+    </script>
 </body>
 </html>
