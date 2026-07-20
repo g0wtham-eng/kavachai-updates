@@ -223,10 +223,10 @@ class KavachInCallService : InCallService(), TextToSpeech.OnInitListener {
 
     private fun speakLine(text: String) {
         Log.d(TAG, "AI speaking: $text")
-        // Comment out TTS voice speech to perform a purely text-based screening
-        // tts?.setPitch(1.15f)
-        // tts?.setSpeechRate(1.05f)
-        // tts?.speak(text, TextToSpeech.QUEUE_ADD, null, "UTT_${System.currentTimeMillis()}")
+        // Re-enable TTS voice speech so it plays out loud over the speakerphone to the caller
+        tts?.setPitch(1.15f)
+        tts?.setSpeechRate(1.05f)
+        tts?.speak(text, TextToSpeech.QUEUE_ADD, null, "UTT_${System.currentTimeMillis()}")
         
         // Save conversation line to file
         try {
@@ -268,15 +268,15 @@ class KavachInCallService : InCallService(), TextToSpeech.OnInitListener {
     @Suppress("DEPRECATION")
     private fun activateSpeakerphone() {
         try {
-            // Route call audio to earpiece by default (no speakerphone blast)
-            setAudioRoute(android.telecom.CallAudioState.ROUTE_EARPIECE)
+            // Route call audio to speakerphone so that the microphone picks it up and transmits to the caller
+            setAudioRoute(android.telecom.CallAudioState.ROUTE_SPEAKER)
             
             val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL)
             audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, maxVol, 0)
             
-            Log.d(TAG, "Audio routed to earpiece from InCallService")
+            Log.d(TAG, "Audio routed to SPEAKERPHONE from InCallService")
         } catch (e: Exception) {
-            Log.e(TAG, "Error activating earpiece routing", e)
+            Log.e(TAG, "Error activating speakerphone routing", e)
         }
     }
 
