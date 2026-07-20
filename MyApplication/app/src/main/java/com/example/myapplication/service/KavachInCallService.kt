@@ -222,11 +222,8 @@ class KavachInCallService : InCallService(), TextToSpeech.OnInitListener {
     }
 
     private fun speakLine(text: String) {
-        Log.d(TAG, "AI speaking: $text")
-        // Re-enable TTS voice speech so it plays out loud over the speakerphone to the caller
-        tts?.setPitch(1.15f)
-        tts?.setSpeechRate(1.05f)
-        tts?.speak(text, TextToSpeech.QUEUE_ADD, null, "UTT_${System.currentTimeMillis()}")
+        Log.d(TAG, "AI message: $text")
+        // No voice output — purely text-based silent screening
         
         // Save conversation line to file
         try {
@@ -267,17 +264,8 @@ class KavachInCallService : InCallService(), TextToSpeech.OnInitListener {
 
     @Suppress("DEPRECATION")
     private fun activateSpeakerphone() {
-        try {
-            // Route call audio to speakerphone so that the microphone picks it up and transmits to the caller
-            setAudioRoute(android.telecom.CallAudioState.ROUTE_SPEAKER)
-            
-            val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL)
-            audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, maxVol, 0)
-            
-            Log.d(TAG, "Audio routed to SPEAKERPHONE from InCallService")
-        } catch (e: Exception) {
-            Log.e(TAG, "Error activating speakerphone routing", e)
-        }
+        // No speakerphone — silent mode, just text messages on screen
+        Log.d(TAG, "Silent mode — no audio routing needed")
     }
 
     @Suppress("DEPRECATION")
