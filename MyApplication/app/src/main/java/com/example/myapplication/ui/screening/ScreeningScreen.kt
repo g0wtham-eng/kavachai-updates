@@ -104,47 +104,24 @@ fun ScreeningScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // ── Animated Caller Ring ──
+            // ── Animated Voice Wave ──
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.size(160.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
             ) {
-                // Pulse rings
+                // Glow blob behind soundwave
                 Box(
                     modifier = Modifier
-                        .size(120.dp)
+                        .size(140.dp)
                         .scale(ring1Scale)
-                        .background(verdictColor.copy(alpha = ring1Alpha), CircleShape)
+                        .blur(50.dp)
+                        .background(verdictColor.copy(alpha = 0.3f), CircleShape)
                 )
-                Box(
-                    modifier = Modifier
-                        .size(120.dp)
-                        .scale(ring2Scale)
-                        .background(verdictColor.copy(alpha = ring2Alpha), CircleShape)
-                )
-                // Main circle
-                Box(
-                    modifier = Modifier
-                        .size(120.dp)
-                        .background(
-                            Brush.radialGradient(
-                                listOf(
-                                    verdictColor.copy(alpha = 0.3f),
-                                    verdictColor.copy(alpha = 0.05f)
-                                )
-                            ),
-                            CircleShape
-                        )
-                        .border(2.dp, verdictColor.copy(alpha = 0.8f), CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Person,
-                        contentDescription = null,
-                        tint = verdictColor,
-                        modifier = Modifier.size(48.dp)
-                    )
-                }
+                
+                // Soundwave bars
+                AnimatedSoundWave(color = verdictColor)
             }
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -208,15 +185,15 @@ fun ScreeningScreen(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // ── Chat Transcript ──
+            // ── Chat Transcript (Glassmorphism) ──
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(SurfaceDark)
-                    .border(1.dp, verdictColor.copy(alpha = 0.2f), RoundedCornerShape(20.dp))
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(Color.White.copy(alpha = 0.03f))
+                    .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(24.dp))
                     .padding(12.dp)
             ) {
                 TranscriptChatList(transcript = state.transcript, accentColor = verdictColor)
@@ -546,4 +523,61 @@ fun ChatInputBox(
             )
         }
     }
+}
+
+// ─── Animated Sound Wave ──────────────────────────────────────────────────────
+@Composable
+fun AnimatedSoundWave(color: Color) {
+    val infiniteTransition = rememberInfiniteTransition(label = "wave")
+    
+    // Create 5 pulsating bars with different delays/durations
+    val bar1 by infiniteTransition.animateFloat(
+        initialValue = 0.2f, targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(400, easing = LinearEasing), RepeatMode.Reverse),
+        label = "b1"
+    )
+    val bar2 by infiniteTransition.animateFloat(
+        initialValue = 0.4f, targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(550, easing = LinearEasing), RepeatMode.Reverse),
+        label = "b2"
+    )
+    val bar3 by infiniteTransition.animateFloat(
+        initialValue = 0.1f, targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(700, easing = LinearEasing), RepeatMode.Reverse),
+        label = "b3"
+    )
+    val bar4 by infiniteTransition.animateFloat(
+        initialValue = 0.5f, targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(500, easing = LinearEasing), RepeatMode.Reverse),
+        label = "b4"
+    )
+    val bar5 by infiniteTransition.animateFloat(
+        initialValue = 0.3f, targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(600, easing = LinearEasing), RepeatMode.Reverse),
+        label = "b5"
+    )
+
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.height(60.dp)
+    ) {
+        SoundBar(heightFactor = bar1, color = color)
+        SoundBar(heightFactor = bar2, color = color)
+        SoundBar(heightFactor = bar3, color = color)
+        SoundBar(heightFactor = bar4, color = color)
+        SoundBar(heightFactor = bar5, color = color)
+    }
+}
+
+@Composable
+fun SoundBar(heightFactor: Float, color: Color) {
+    Box(
+        modifier = Modifier
+            .width(8.dp)
+            .fillMaxHeight(heightFactor)
+            .clip(RoundedCornerShape(4.dp))
+            .background(color)
+            .border(0.5.dp, color.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
+    )
 }
