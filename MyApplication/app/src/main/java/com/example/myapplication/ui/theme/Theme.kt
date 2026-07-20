@@ -13,7 +13,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 // ─── Always force our custom dark scheme — NEVER use dynamic wallpaper colors ──
-private val CanaraAIDarkScheme = darkColorScheme(
+private val KavachAIDarkScheme = darkColorScheme(
     primary                  = primaryDark,
     onPrimary                = onPrimaryDark,
     primaryContainer         = primaryContainerDark,
@@ -44,7 +44,7 @@ private val CanaraAIDarkScheme = darkColorScheme(
     inversePrimary           = inversePrimaryDark,
 )
 
-private val CanaraAILightScheme = lightColorScheme(
+private val KavachAILightScheme = lightColorScheme(
     primary                  = primaryLight,
     onPrimary                = onPrimaryLight,
     primaryContainer         = primaryContainerLight,
@@ -80,8 +80,8 @@ fun MyApplicationTheme(
     darkTheme: Boolean = true, // ALWAYS dark — equal AI style
     content: @Composable () -> Unit
 ) {
-    // dynamicColor is DISABLED — we enforce our custom Canara AI brand palette
-    val colorScheme = if (darkTheme) CanaraAIDarkScheme else CanaraAILightScheme
+    // dynamicColor is DISABLED — we enforce our custom KavachAI brand palette
+    val colorScheme = if (darkTheme) KavachAIDarkScheme else KavachAILightScheme
 
     val view = LocalView.current
     if (!view.isInEditMode) {

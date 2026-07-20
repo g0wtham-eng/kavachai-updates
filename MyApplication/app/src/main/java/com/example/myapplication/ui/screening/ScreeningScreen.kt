@@ -33,7 +33,7 @@ fun ScreeningScreen(
     onClose: () -> Unit
 ) {
     val verdictColor = when (state.verdict) {
-        Verdict.ANALYZING  -> CanaraBlue
+        Verdict.ANALYZING  -> KavachRed
         Verdict.SAFE       -> NeonGreen
         Verdict.SUSPICIOUS -> NeonAmber
         Verdict.FRAUD      -> NeonRed
@@ -90,12 +90,12 @@ fun ScreeningScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Icon(Icons.Rounded.Shield, null, tint = CanaraBlue, modifier = Modifier.size(16.dp))
+                Icon(Icons.Rounded.Shield, null, tint = KavachRed, modifier = Modifier.size(16.dp))
                 Text(
-                    "CANARA AI SCREENING",
+                    "KAVACHAI SCREENING",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
-                    color = CanaraBlue,
+                    color = KavachRed,
                     letterSpacing = 2.sp
                 )
             }
@@ -307,7 +307,7 @@ fun TranscriptChatList(transcript: List<String>, accentColor: Color) {
                     horizontalAlignment = if (isAI) Alignment.Start else Alignment.End
                 ) {
                     Text(
-                        text = if (isAI) "Canara AI" else "Caller",
+                        text = if (isAI) "KavachAI" else "Caller",
                         fontSize = 10.sp,
                         color = TextDim,
                         fontWeight = FontWeight.Bold,
@@ -352,7 +352,7 @@ fun TranscriptChatList(transcript: List<String>, accentColor: Color) {
 @Composable
 fun StatusChip(modifier: Modifier, label: String, icon: ImageVector) {
     val color = when {
-        label == "Analyzing..."   -> CanaraBlue
+        label == "Analyzing..."   -> KavachRed
         label.contains("Fraud") || label.contains("AI Cloned") || label.contains("VoIP") -> NeonRed
         label.contains("Uncertain") || label.contains("Suspicious") -> NeonAmber
         else -> NeonGreen
@@ -385,7 +385,7 @@ fun VerdictBanner(state: ScreeningState, accentColor: Color) {
         Verdict.ANALYZING  -> Triple(Icons.Rounded.Search,    "Analyzing Caller...",   "AI is actively interrogating the caller")
         Verdict.SAFE       -> Triple(Icons.Rounded.CheckCircle, "Verdict: SAFE",        "Caller appears legitimate — safe to answer")
         Verdict.SUSPICIOUS -> Triple(Icons.Rounded.Warning,   "Verdict: SUSPICIOUS",   "Potential spam or unsolicited call detected")
-        Verdict.FRAUD      -> Triple(Icons.Rounded.Dangerous,  "FRAUD DETECTED",        "Canara Bank phishing attempt blocked!")
+        Verdict.FRAUD      -> Triple(Icons.Rounded.Dangerous,  "FRAUD DETECTED",        "Phishing attempt blocked!")
     }
 
     Row(
@@ -429,7 +429,7 @@ fun ActionButtonsRow(state: ScreeningState, onClose: () -> Unit, accentColor: Co
             modifier = Modifier.weight(1f),
             icon = Icons.Rounded.PersonSearch,
             label = "Take Over",
-            color = CanaraBlue,
+            color = KavachRed,
             onClick = onClose
         )
         // Answer (only if not fraud)

@@ -125,7 +125,7 @@ class KavachInCallService : InCallService(), TextToSpeech.OnInitListener {
             delay(1000) // Small buffer to ensure audio connection stabilizes after answering
             activateSpeakerphone()
 
-            speakLine("Hello, this is Canara Bank's AI security verification system. Please state your reason for calling.")
+            speakLine("Hello, this is Kavach AI's security verification system. Please state your reason for calling.")
             delay(5000)
             
             if (phoneNumber.endsWith("1")) {
@@ -135,7 +135,7 @@ class KavachInCallService : InCallService(), TextToSpeech.OnInitListener {
             } else if (phoneNumber.endsWith("2")) {
                 speakLine("Verifying number routing through Jio Airtel telecom networks...")
                 delay(3000)
-                speakLine("Alert: Number is not routed through official Canara Bank servers.")
+                speakLine("Alert: Number is not routed through official Kavach servers.")
                 delay(2000)
                 speakLine("Suspicious request. Potential marketing call.")
             } else {

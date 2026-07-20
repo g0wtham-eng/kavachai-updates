@@ -1,13 +1,13 @@
 <resources>
-    <string name="app_name">Canara AI</string>
-    <string name="welcome_title">Welcome to Canara AI</string>
-    <string name="welcome_desc">AI-powered fraud call detection for Canara Bank customers.</string>
+    <string name="app_name">KavachAI</string>
+    <string name="welcome_title">Welcome to KavachAI</string>
+    <string name="welcome_desc">AI-powered fraud call detection protection.</string>
     <string name="setup_permission_step">1. Grant Permissions</string>
     <string name="setup_role_step">2. Enable Call Screening</string>
     <string name="setup_role_active">2. Call Screening Active</string>
     <string name="simulate_fraud_call">Simulate Fraud Call Interception</string>
-    <string name="dashboard_title">Canara AI Secretary</string>
-    <string name="dashboard_subtitle">Canara Bank Security</string>
+    <string name="dashboard_title">KavachAI Secretary</string>
+    <string name="dashboard_subtitle">KavachAI Security</string>
     <string name="status_protected">System Protected</string>
     <string name="status_action_required">Action Required</string>
     <string name="status_protected_desc">KavachAI is actively screening your calls.</string>

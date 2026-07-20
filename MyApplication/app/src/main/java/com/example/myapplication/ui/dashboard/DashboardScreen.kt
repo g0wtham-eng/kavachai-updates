@@ -79,7 +79,7 @@ fun DashboardScreen(onNavigateToHistory: () -> Unit) {
                 .size(300.dp)
                 .offset(x = (-80).dp, y = (-60).dp)
                 .blur(120.dp)
-                .background(CanaraBlue.copy(alpha = 0.15f), CircleShape)
+                .background(KavachRed.copy(alpha = 0.15f), CircleShape)
         )
         Box(
             modifier = Modifier
@@ -87,7 +87,7 @@ fun DashboardScreen(onNavigateToHistory: () -> Unit) {
                 .align(Alignment.BottomEnd)
                 .offset(x = 60.dp, y = 60.dp)
                 .blur(120.dp)
-                .background(CanaraYellow.copy(alpha = 0.08f), CircleShape)
+                .background(KavachRedAccent.copy(alpha = 0.08f), CircleShape)
         )
 
         LazyColumn(
@@ -154,7 +154,7 @@ fun DashboardScreen(onNavigateToHistory: () -> Unit) {
                         icon = Icons.Rounded.History,
                         title = "Threat Log",
                         subtitle = "Past calls",
-                        color = CanaraBlue,
+                        color = KavachRed,
                         onClick = onNavigateToHistory
                     )
                     QuickActionCard(
@@ -203,22 +203,22 @@ fun DashboardHeader(isEnabled: Boolean) {
                             .size(52.dp)
                             .scale(scale)
                             .blur(16.dp)
-                            .background(CanaraBlue.copy(alpha = 0.5f), CircleShape)
+                            .background(KavachRed.copy(alpha = 0.5f), CircleShape)
                     )
                     Box(
                         modifier = Modifier
                             .size(44.dp)
                             .background(
-                                Brush.radialGradient(listOf(CanaraBlue.copy(0.3f), Color.Transparent)),
+                                Brush.radialGradient(listOf(KavachRed.copy(0.3f), Color.Transparent)),
                                 CircleShape
                             )
-                            .border(1.dp, CanaraBlue.copy(alpha = 0.6f), CircleShape),
+                            .border(1.dp, KavachRed.copy(alpha = 0.6f), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.Shield,
                             contentDescription = null,
-                            tint = CanaraBlue,
+                            tint = KavachRed,
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -228,7 +228,7 @@ fun DashboardHeader(isEnabled: Boolean) {
 
                 Column {
                     Text(
-                        text = "Canara AI",
+                        text = "KavachAI",
                         fontSize = 26.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = TextPrimary,
@@ -238,7 +238,7 @@ fun DashboardHeader(isEnabled: Boolean) {
                         text = "Bank Security Assistant",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Normal,
-                        color = CanaraBlue,
+                        color = KavachRed,
                         letterSpacing = 0.5.sp
                     )
                 }
@@ -275,7 +275,7 @@ fun StatusCard(isEnabled: Boolean, onClick: () -> Unit) {
     val icon = if (isEnabled) Icons.Rounded.VerifiedUser else Icons.Rounded.GppMaybe
     val title = if (isEnabled) "System Protected" else "Action Required"
     val desc = if (isEnabled)
-        "Canara AI is actively screening all incoming calls"
+        "KavachAI is actively screening all incoming calls"
     else
         "Tap to enable call screening protection"
 
@@ -330,7 +330,7 @@ fun QuickStatsRow() {
             .padding(horizontal = 20.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        StatChip(modifier = Modifier.weight(1f), label = "Screened", value = "128", color = CanaraBlue)
+        StatChip(modifier = Modifier.weight(1f), label = "Screened", value = "128", color = KavachRed)
         StatChip(modifier = Modifier.weight(1f), label = "Blocked", value = "14", color = NeonRed)
         StatChip(modifier = Modifier.weight(1f), label = "Safe", value = "112", color = NeonGreen)
     }
@@ -362,12 +362,12 @@ fun ScreeningSandbox(onScreenNumber: (String) -> Unit) {
             .padding(horizontal = 20.dp)
             .clip(RoundedCornerShape(20.dp))
             .background(SurfaceDark)
-            .border(1.dp, CanaraBlue.copy(alpha = 0.2f), RoundedCornerShape(20.dp))
+            .border(1.dp, KavachRed.copy(alpha = 0.2f), RoundedCornerShape(20.dp))
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Icon(Icons.Rounded.PhoneInTalk, null, tint = CanaraBlue, modifier = Modifier.size(22.dp))
+            Icon(Icons.Rounded.PhoneInTalk, null, tint = KavachRed, modifier = Modifier.size(22.dp))
             Text("AI Call Sandbox", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextPrimary)
         }
 
@@ -382,11 +382,11 @@ fun ScreeningSandbox(onScreenNumber: (String) -> Unit) {
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(14.dp))
                 .background(SurfaceMid)
-                .border(1.dp, if (inputNumber.isNotEmpty()) CanaraBlue.copy(0.5f) else TextDim.copy(0.3f), RoundedCornerShape(14.dp))
+                .border(1.dp, if (inputNumber.isNotEmpty()) KavachRed.copy(0.5f) else TextDim.copy(0.3f), RoundedCornerShape(14.dp))
                 .padding(horizontal = 16.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Rounded.Dialpad, null, tint = CanaraBlue, modifier = Modifier.size(20.dp))
+            Icon(Icons.Rounded.Dialpad, null, tint = KavachRed, modifier = Modifier.size(20.dp))
             Spacer(modifier = Modifier.width(10.dp))
             androidx.compose.foundation.text.BasicTextField(
                 value = inputNumber,
@@ -414,7 +414,7 @@ fun ScreeningSandbox(onScreenNumber: (String) -> Unit) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             HintRow("Ends in 1", "SAFE — Verified contact", NeonGreen)
             HintRow("Ends in 2", "SUSPICIOUS — Loan offer", NeonAmber)
-            HintRow("Others",    "FRAUD — Canara phishing", NeonRed)
+            HintRow("Others",    "FRAUD — phishing attempt", NeonRed)
         }
 
         // Screen button
@@ -425,11 +425,11 @@ fun ScreeningSandbox(onScreenNumber: (String) -> Unit) {
             },
             modifier = Modifier.fillMaxWidth().height(50.dp),
             shape = RoundedCornerShape(14.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = CanaraBlue)
+            colors = ButtonDefaults.buttonColors(containerColor = KavachRed)
         ) {
             Icon(Icons.Rounded.PlayArrow, null, tint = Color.White, modifier = Modifier.size(20.dp))
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Start Canara AI Screening", fontWeight = FontWeight.Bold, color = Color.White)
+            Text("Start KavachAI Screening", fontWeight = FontWeight.Bold, color = Color.White)
         }
     }
 }
