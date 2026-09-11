@@ -154,7 +154,7 @@ fun KavachSetupScreen(onSetupComplete: () -> Unit) {
             Spacer(modifier = Modifier.height(24.dp))
             
             Text(
-                text = "Welcome to KavachAI",
+                text = "Welcome to Nova",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = TextPrimary

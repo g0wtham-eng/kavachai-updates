@@ -94,7 +94,7 @@ fun ScreeningScreen(
             ) {
                 Icon(Icons.Rounded.Shield, null, tint = KavachRed, modifier = Modifier.size(16.dp))
                 Text(
-                    "KAVACHAI SCREENING",
+                    "Nova SCREENING",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     color = KavachRed,
@@ -246,10 +246,10 @@ fun TranscriptChatList(transcript: List<String>, accentColor: Color) {
         contentPadding = PaddingValues(4.dp)
     ) {
         items(transcript) { message ->
-            val isAI = message.startsWith("KavachAI:")
+            val isAI = message.startsWith("Nova:")
             val isWarning = message.contains("WARNING") || message.contains("CRITICAL") || message.contains("TERMINATING")
             val cleanText = message
-                .removePrefix("KavachAI:")
+                .removePrefix("Nova:")
                 .removePrefix("Caller:")
                 .removePrefix("Caller (Robo-AI):")
                 .trim()
@@ -293,7 +293,7 @@ fun TranscriptChatList(transcript: List<String>, accentColor: Color) {
                     horizontalAlignment = if (isAI) Alignment.Start else Alignment.End
                 ) {
                     Text(
-                        text = if (isAI) "KavachAI" else "Caller",
+                        text = if (isAI) "Nova" else "Caller",
                         fontSize = 10.sp,
                         color = TextDim,
                         fontWeight = FontWeight.Bold,
@@ -497,7 +497,7 @@ fun ChatInputBox(
             decorationBox = { inner ->
                 if (text.isEmpty()) {
                     Text(
-                        "Ask KavachAI (e.g., 'who', 'safe', 'block')...",
+                        "Ask Nova (e.g., 'who', 'safe', 'block')...",
                         color = TextDim,
                         fontSize = 14.sp
                     )

@@ -9,7 +9,7 @@ import com.example.myapplication.ui.screening.ScreeningActivity
 class CallSimulationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         Log.d("CallSimulationReceiver", "onReceive: received action = ${intent.action}")
-        if (intent.action == "com.canara.kavachai.SIMULATE_CALL") {
+        if (intent.action == "com.canara.Nova.SIMULATE_CALL") {
             val phoneNumber = intent.getStringExtra("phoneNumber") ?: "Unknown Remote"
             Log.d("CallSimulationReceiver", "onReceive: phoneNumber = $phoneNumber")
             

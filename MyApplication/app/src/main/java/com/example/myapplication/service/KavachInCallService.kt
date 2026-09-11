@@ -26,7 +26,7 @@ class KavachInCallService : InCallService() {
     private val serviceScope = CoroutineScope(Dispatchers.Main + Job())
     private val disconnectReceiver = object : android.content.BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == "com.canara.kavachai.TRIGGER_DISCONNECT") {
+            if (intent?.action == "com.canara.Nova.TRIGGER_DISCONNECT") {
                 Log.d(TAG, "Disconnect triggered via broadcast")
                 activeCall?.disconnect()
             }
@@ -48,7 +48,7 @@ class KavachInCallService : InCallService() {
         super.onCreate()
         Log.d(TAG, "InCallService created")
 
-        val filter = android.content.IntentFilter("com.canara.kavachai.TRIGGER_DISCONNECT")
+        val filter = android.content.IntentFilter("com.canara.Nova.TRIGGER_DISCONNECT")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(disconnectReceiver, filter, RECEIVER_NOT_EXPORTED)
         } else {
@@ -102,7 +102,7 @@ class KavachInCallService : InCallService() {
 
                 val notification = NotificationCompat.Builder(this, channelId)
                     .setSmallIcon(android.R.drawable.sym_call_incoming)
-                    .setContentTitle("KavachAI Screening")
+                    .setContentTitle("Nova Screening")
                     .setContentText("Screening incoming call...")
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setCategory(NotificationCompat.CATEGORY_CALL)
@@ -152,7 +152,7 @@ class KavachInCallService : InCallService() {
         }
         
         // Notify Activity to close
-        val intent = Intent("com.canara.kavachai.CALL_ENDED")
+        val intent = Intent("com.canara.Nova.CALL_ENDED")
         sendBroadcast(intent)
     }
 

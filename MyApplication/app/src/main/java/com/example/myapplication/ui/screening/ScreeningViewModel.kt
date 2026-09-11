@@ -24,9 +24,9 @@ class ScreeningViewModel : ViewModel() {
         // Fake progressive updates based on number of messages for visual effect
         val progressRatio = minOf((currentSize + 1).toFloat() / 5f, 1.0f)
         
-        val voiceVal = if (currentSize >= 1) "Analyzing Voice..." else "Connecting..."
-        val originVal = if (currentSize >= 2) "Jio / Airtel Check..." else "Waiting..."
-        val dbVal = if (currentSize >= 3) "Fraud DB Check..." else "Waiting..."
+        val voiceVal = if (currentSize >= 1) "Listening..." else "Connecting..."
+        val originVal = if (currentSize >= 2) "Understanding Intent..." else "Waiting..."
+        val dbVal = if (currentSize >= 3) "Drafting Response..." else "Waiting..."
 
         _uiState.update {
             it.copy(
@@ -44,9 +44,9 @@ class ScreeningViewModel : ViewModel() {
                 it.copy(
                     verdict = if (isFraud) Verdict.FRAUD else Verdict.SAFE,
                     confidenceScore = if (isFraud) 0.98f else 0.02f,
-                    voiceStatus = if (isFraud) "AI Cloned (94%)" else "Real Human",
-                    originStatus = if (isFraud) "Unknown (VoIP)" else "Jio Network",
-                    dbStatus = if (isFraud) "Fraud Registry" else "Clean",
+                    voiceStatus = if (isFraud) "Spam Detected" else "Verified Caller",
+                    originStatus = if (isFraud) "Blocked" else "Network Secure",
+                    dbStatus = if (isFraud) "Call Terminated" else "Call Active",
                     progress = 1.0f,
                     isAnalysisComplete = true
                 )
@@ -75,9 +75,9 @@ class ScreeningViewModel : ViewModel() {
 
             if (reply != null) {
                 delay(1500)
-                addTranscriptMessage("KavachAI: $reply")
-                saveMessageToFile(context, "KavachAI: $reply")
-                val intentAgent = android.content.Intent("com.canara.kavachai.NEW_TRANSCRIPT_TTS").apply {
+                addTranscriptMessage("Nova: $reply")
+                saveMessageToFile(context, "Nova: $reply")
+                val intentAgent = android.content.Intent("com.canara.Nova.NEW_TRANSCRIPT_TTS").apply {
                     putExtra("message", reply)
                     putExtra("isAI", true)
                 }
@@ -114,11 +114,11 @@ class ScreeningViewModel : ViewModel() {
             }
             
             // Add the generated response to the chat
-            addTranscriptMessage("KavachAI: $reply")
-            saveMessageToFile(context, "KavachAI: $reply")
+            addTranscriptMessage("Nova: $reply")
+            saveMessageToFile(context, "Nova: $reply")
 
             // Broadcast agent response to speak aloud
-            val intentAgent = android.content.Intent("com.canara.kavachai.NEW_TRANSCRIPT_TTS").apply {
+            val intentAgent = android.content.Intent("com.canara.Nova.NEW_TRANSCRIPT_TTS").apply {
                 putExtra("message", reply)
                 putExtra("isAI", true)
             }
@@ -127,7 +127,7 @@ class ScreeningViewModel : ViewModel() {
             // If they said block/disconnect, trigger disconnect via broadcast
             if (lower.contains("block") || lower.contains("disconnect") || lower.contains("hang") || lower.contains("not interested")) {
                 delay(5000) // wait for TTS to finish before hanging up
-                val disconnectIntent = android.content.Intent("com.canara.kavachai.TRIGGER_DISCONNECT")
+                val disconnectIntent = android.content.Intent("com.canara.Nova.TRIGGER_DISCONNECT")
                 context.sendBroadcast(disconnectIntent)
             }
         }

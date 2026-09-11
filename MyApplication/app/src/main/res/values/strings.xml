@@ -1,16 +1,15 @@
 <resources>
-    <string name="app_name">KavachAI</string>
-    <string name="welcome_title">Welcome to KavachAI</string>
+    <string name="app_name">Nova Assistant</string>
+    <string name="welcome_title">Welcome to Nova Assistant</string>
     <string name="welcome_desc">AI-powered fraud call detection protection.</string>
     <string name="setup_permission_step">1. Grant Permissions</string>
     <string name="setup_role_step">2. Enable Call Screening</string>
     <string name="setup_role_active">2. Call Screening Active</string>
     <string name="simulate_fraud_call">Simulate Fraud Call Interception</string>
-    <string name="dashboard_title">KavachAI Secretary</string>
-    <string name="dashboard_subtitle">KavachAI Security</string>
+    <string name="dashboard_subtitle">Nova Security</string>
     <string name="status_protected">System Protected</string>
     <string name="status_action_required">Action Required</string>
-    <string name="status_protected_desc">KavachAI is actively screening your calls.</string>
+    <string name="status_protected_desc">Nova is actively screening your calls.</string>
     <string name="status_action_required_desc">Enable call screening to start protection.</string>
     <string name="threat_history_label">Threat Log</string>
     <string name="test_ai_label">Test AI</string>

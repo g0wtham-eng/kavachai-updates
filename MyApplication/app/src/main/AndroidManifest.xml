@@ -38,7 +38,7 @@
             android:name=".receiver.CallSimulationReceiver"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.canara.kavachai.SIMULATE_CALL" />
+                <action android:name="com.canara.Nova.SIMULATE_CALL" />
             </intent-filter>
         </receiver>
 

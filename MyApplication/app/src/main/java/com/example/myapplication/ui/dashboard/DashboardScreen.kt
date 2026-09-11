@@ -230,7 +230,7 @@ fun DashboardHeader(isEnabled: Boolean) {
 
                 Column {
                     Text(
-                        text = "KavachAI",
+                        text = "Nova",
                         fontSize = 26.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = TextPrimary,
@@ -277,7 +277,7 @@ fun StatusCard(isEnabled: Boolean, onClick: () -> Unit) {
     val icon = if (isEnabled) Icons.Rounded.VerifiedUser else Icons.Rounded.GppMaybe
     val title = if (isEnabled) "System Protected" else "Action Required"
     val desc = if (isEnabled)
-        "KavachAI is actively screening all incoming calls"
+        "Nova is actively screening all incoming calls"
     else
         "Tap to enable call screening protection"
 
@@ -431,7 +431,7 @@ fun ScreeningSandbox(onScreenNumber: (String) -> Unit) {
         ) {
             Icon(Icons.Rounded.PlayArrow, null, tint = Color.White, modifier = Modifier.size(20.dp))
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Start KavachAI Screening", fontWeight = FontWeight.Bold, color = Color.White)
+            Text("Start Nova Screening", fontWeight = FontWeight.Bold, color = Color.White)
         }
     }
 }

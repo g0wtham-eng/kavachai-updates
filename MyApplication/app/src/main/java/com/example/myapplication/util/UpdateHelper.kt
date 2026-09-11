@@ -19,7 +19,7 @@ import java.io.FileOutputStream
 object UpdateHelper {
     private const val TAG = "UpdateHelper"
     private const val MANIFEST_URL =
-        "https://raw.githubusercontent.com/g0wtham-eng/kavachai-updates/main/manifest.json"
+        "https://raw.githubusercontent.com/g0wtham-eng/Nova-updates/main/manifest.json"
 
     private val client = OkHttpClient()
 

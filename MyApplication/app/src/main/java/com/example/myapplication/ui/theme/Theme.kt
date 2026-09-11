@@ -13,7 +13,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 // ─── Always force our custom dark scheme — NEVER use dynamic wallpaper colors ──
-private val KavachAIDarkScheme = darkColorScheme(
+private val NovaDarkScheme = darkColorScheme(
     primary                  = primaryDark,
     onPrimary                = onPrimaryDark,
     primaryContainer         = primaryContainerDark,
@@ -44,7 +44,7 @@ private val KavachAIDarkScheme = darkColorScheme(
     inversePrimary           = inversePrimaryDark,
 )
 
-private val KavachAILightScheme = lightColorScheme(
+private val NovaLightScheme = lightColorScheme(
     primary                  = primaryLight,
     onPrimary                = onPrimaryLight,
     primaryContainer         = primaryContainerLight,
@@ -80,8 +80,8 @@ fun MyApplicationTheme(
     darkTheme: Boolean = true, // ALWAYS dark — equal AI style
     content: @Composable () -> Unit
 ) {
-    // dynamicColor is DISABLED — we enforce our custom KavachAI brand palette
-    val colorScheme = if (darkTheme) KavachAIDarkScheme else KavachAILightScheme
+    // dynamicColor is DISABLED — we enforce our custom Nova brand palette
+    val colorScheme = if (darkTheme) NovaDarkScheme else NovaLightScheme
 
     val view = LocalView.current
     if (!view.isInEditMode) {

@@ -52,16 +52,16 @@ class ScreeningActivity : ComponentActivity(), TextToSpeech.OnInitListener {
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
-                "com.canara.kavachai.NEW_TRANSCRIPT" -> {
+                "com.canara.Nova.NEW_TRANSCRIPT" -> {
                     val msg = intent.getStringExtra("message") ?: return
                     viewModel.addTranscriptMessage(msg)
                 }
-                "com.canara.kavachai.NEW_TRANSCRIPT_TTS" -> {
+                "com.canara.Nova.NEW_TRANSCRIPT_TTS" -> {
                     val msg = intent.getStringExtra("message") ?: return
                     val isAI = intent.getBooleanExtra("isAI", true)
                     speakLine(msg, isAI)
                 }
-                "com.canara.kavachai.CALL_ENDED", "com.canara.kavachai.TRIGGER_DISCONNECT" -> {
+                "com.canara.Nova.CALL_ENDED", "com.canara.Nova.TRIGGER_DISCONNECT" -> {
                     finish()
                 }
             }
@@ -97,10 +97,10 @@ class ScreeningActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
         // Register receiver
         val filter = IntentFilter().apply {
-            addAction("com.canara.kavachai.NEW_TRANSCRIPT")
-            addAction("com.canara.kavachai.NEW_TRANSCRIPT_TTS")
-            addAction("com.canara.kavachai.CALL_ENDED")
-            addAction("com.canara.kavachai.TRIGGER_DISCONNECT")
+            addAction("com.canara.Nova.NEW_TRANSCRIPT")
+            addAction("com.canara.Nova.NEW_TRANSCRIPT_TTS")
+            addAction("com.canara.Nova.CALL_ENDED")
+            addAction("com.canara.Nova.TRIGGER_DISCONNECT")
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(receiver, filter, RECEIVER_NOT_EXPORTED)
@@ -140,7 +140,7 @@ class ScreeningActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                 setupRealCall()
             } else {
                 Log.e(TAG, "Microphone permission denied. Cannot transcribe caller.")
-                viewModel.addTranscriptMessage("KavachAI: Microphone access denied. Transcribing disabled.")
+                viewModel.addTranscriptMessage("Nova: Microphone access denied. Transcribing disabled.")
             }
         }
     }
@@ -152,8 +152,8 @@ class ScreeningActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         
         lifecycleScope.launch {
             delay(1000)
-            val msg = "Hello, you have reached Mr. Gowtham's phone. This is KavachAI, his personal call assistant. May I know who is calling and what is the reason for calling Mr. Gowtham?"
-            viewModel.addTranscriptMessage("KavachAI: $msg")
+            val msg = "Hello, you have reached Mr. Gowtham's phone. This is Nova, his personal call assistant. May I know who is calling and what is the reason for calling Mr. Gowtham?"
+            viewModel.addTranscriptMessage("Nova: $msg")
             speakLine(msg, true)
         }
     }
@@ -248,8 +248,8 @@ class ScreeningActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         lifecycleScope.launch {
             activateSpeakerphone()
             delay(1500)
-            val msg1 = "Hello, this is KavachAI call assistant. Please state your name and reason for calling."
-            viewModel.addTranscriptMessage("KavachAI: $msg1")
+            val msg1 = "Hello, this is Nova call assistant. Please state your name and reason for calling."
+            viewModel.addTranscriptMessage("Nova: $msg1")
             speakLine(msg1, true)
             
             delay(7000)
@@ -259,7 +259,7 @@ class ScreeningActivity : ComponentActivity(), TextToSpeech.OnInitListener {
             
             delay(5000)
             val msg3 = "I see. Could you please confirm the order number or delivery address?"
-            viewModel.addTranscriptMessage("KavachAI: $msg3")
+            viewModel.addTranscriptMessage("Nova: $msg3")
             speakLine(msg3, true)
             
             delay(6000)
@@ -269,7 +269,7 @@ class ScreeningActivity : ComponentActivity(), TextToSpeech.OnInitListener {
             
             delay(4000)
             val msg5 = "Understood. I will notify Mr. Gowtham to collect the parcel. Thank you."
-            viewModel.addTranscriptMessage("KavachAI: $msg5")
+            viewModel.addTranscriptMessage("Nova: $msg5")
             speakLine(msg5, true)
             
             delay(3500)

@@ -51,7 +51,7 @@ class KavachNotificationListenerService : NotificationListenerService() {
                     startActivity(intent)
 
                     // Notify engine
-                    val broadcast = Intent("com.canara.kavachai.START_ENGINE")
+                    val broadcast = Intent("com.canara.Nova.START_ENGINE")
                     LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast)
 
                 } catch (e: PendingIntent.CanceledException) {
