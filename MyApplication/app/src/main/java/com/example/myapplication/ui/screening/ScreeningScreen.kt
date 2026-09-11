@@ -37,8 +37,8 @@ fun ScreeningScreen(
     val verdictColor = when (state.verdict) {
         Verdict.ANALYZING  -> PrimaryIndigo
         Verdict.SAFE       -> SecondaryPurple
-        Verdict.SUSPICIOUS -> NeonAmber
-        Verdict.FRAUD      -> NeonRed
+        Verdict.SUSPICIOUS -> SecondaryPurple
+        Verdict.FRAUD      -> DangerRed
     }
 
     val pulse = rememberInfiniteTransition(label = "pulse")
@@ -156,7 +156,7 @@ fun ScreeningScreen(
                         .height(4.dp)
                         .clip(CircleShape),
                     color = verdictColor,
-                    trackColor = SurfaceLight
+                    trackColor = Color(0xFFE0E0E0)
                 )
                 Row(
                     modifier = Modifier
@@ -255,17 +255,17 @@ fun TranscriptChatList(transcript: List<String>, accentColor: Color) {
                 .trim()
 
             val bubbleColor = when {
-                isAI && isWarning -> NeonRed.copy(alpha = 0.12f)
+                isAI && isWarning -> DangerRed.copy(alpha = 0.12f)
                 isAI              -> accentColor.copy(alpha = 0.1f)
-                else              -> SurfaceMid
+                else              -> Color(0xFFFFFFFF)
             }
             val textColor = when {
-                isAI && isWarning -> NeonRed
+                isAI && isWarning -> DangerRed
                 isAI              -> TextPrimary
                 else              -> TextSecondary
             }
             val borderColor = when {
-                isAI && isWarning -> NeonRed.copy(0.4f)
+                isAI && isWarning -> DangerRed.copy(0.4f)
                 isAI              -> accentColor.copy(0.25f)
                 else              -> TextDim.copy(0.2f)
             }
@@ -339,8 +339,8 @@ fun TranscriptChatList(transcript: List<String>, accentColor: Color) {
 fun StatusChip(modifier: Modifier, label: String, icon: ImageVector) {
     val color = when {
         label == "Analyzing..."   -> PrimaryIndigo
-        label.contains("Fraud") || label.contains("AI Cloned") || label.contains("VoIP") -> NeonRed
-        label.contains("Uncertain") || label.contains("Suspicious") -> NeonAmber
+        label.contains("Fraud") || label.contains("AI Cloned") || label.contains("VoIP") -> DangerRed
+        label.contains("Uncertain") || label.contains("Suspicious") -> SecondaryPurple
         else -> SecondaryPurple
     }
     Column(
@@ -407,7 +407,7 @@ fun ActionButtonsRow(state: ScreeningState, onClose: () -> Unit, accentColor: Co
             modifier = Modifier.weight(1f),
             icon = Icons.Rounded.CallEnd,
             label = "End",
-            color = NeonRed,
+            color = DangerRed,
             onClick = onClose
         )
         // Take Over
@@ -481,7 +481,7 @@ fun ChatInputBox(
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 4.dp)
             .clip(RoundedCornerShape(14.dp))
-            .background(SurfaceDark)
+            .background(Color(0xFFFFFFFF))
             .border(1.dp, accentColor.copy(0.25f), RoundedCornerShape(14.dp))
             .padding(horizontal = 14.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically

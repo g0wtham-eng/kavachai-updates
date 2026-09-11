@@ -415,11 +415,13 @@ fun ScreeningSandbox(onScreenNumber: (String) -> Unit) {
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text("Enter a phone number...", color = Color(0xFFA0A0B0)) },
             shape = RoundedCornerShape(16.dp),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                containerColor = Color.White,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
                 focusedBorderColor = PrimaryIndigo,
                 unfocusedBorderColor = Color(0xFFE0E0E0),
-                textColor = Color(0xFF1E1E2C)
+                focusedTextColor = Color(0xFF1E1E2C),
+                unfocusedTextColor = Color(0xFF1E1E2C)
             ),
             singleLine = true,
             trailingIcon = {

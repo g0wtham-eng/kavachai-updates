@@ -46,11 +46,10 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation3.runtime.rememberNavBackStack
 import com.example.myapplication.ui.navigation.Destination
 import com.example.myapplication.ui.navigation.KavachNavGraph
-import com.example.myapplication.ui.theme.Color(0xFFF4F6FB)
+
 import com.example.myapplication.ui.theme.PrimaryIndigo
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.ui.theme.SecondaryPurple
-import com.example.myapplication.ui.theme.SurfaceDark
 import com.example.myapplication.ui.theme.TextPrimary
 import com.example.myapplication.ui.theme.TextSecondary
 import kotlinx.coroutines.delay
@@ -257,8 +256,8 @@ fun PermissionCheckRow(
     isGranted: Boolean,
     onClick: () -> Unit
 ) {
-    val bgColor = if (isGranted) SecondaryPurple.copy(alpha = 0.1f) else SurfaceDark
-    val borderColor = if (isGranted) SecondaryPurple.copy(alpha = 0.3f) else SurfaceDark.copy(alpha = 0.5f)
+    val bgColor = if (isGranted) SecondaryPurple.copy(alpha = 0.1f) else Color(0xFFFFFFFF)
+    val borderColor = if (isGranted) SecondaryPurple.copy(alpha = 0.3f) else Color(0xFFFFFFFF).copy(alpha = 0.5f)
 
     Row(
         modifier = Modifier
