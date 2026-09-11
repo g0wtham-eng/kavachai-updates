@@ -3,344 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <title>Nova Assistant - Smart Dialer Installation Hub</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+    <title>Nova Assistant - Your Personal Call Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#5C6BC0',
+                        secondary: '#7E57C2',
+                        background: '#F4F6FB',
+                        surface: '#FFFFFF',
+                        textMain: '#1E1E2C',
+                        textMuted: '#6E6E82'
+                    },
+                    animation: {
+                        'float': 'float 4s ease-in-out infinite',
+                        'blob': 'blob 7s infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-15px)' },
+                        },
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        :root {
-            --bg-primary: #0a0b10;
-            --bg-secondary: rgba(18, 20, 29, 0.7);
-            --accent: #3b82f6;
-            --accent-glow: rgba(59, 130, 246, 0.45);
-            --text-primary: #f3f4f6;
-            --text-secondary: #9ca3af;
-            --border-glow: rgba(255, 255, 255, 0.08);
-            --success: #10b981;
+        body { background-color: #F4F6FB; overflow-x: hidden; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 20px 40px rgba(92, 107, 192, 0.08);
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 40%);
-        }
-
-        .container {
-            width: 100%;
-            max-width: 900px;
-            padding: 40px 20px;
-            z-index: 10;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .logo-container {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-glow);
-            padding: 16px;
-            border-radius: 24px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            backdrop-filter: blur(12px);
-            margin-bottom: 20px;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .logo-container:hover {
-            transform: scale(1.05);
-            border-color: var(--accent);
-            box-shadow: 0 0 25px var(--accent-glow);
-        }
-
-        .logo-icon {
-            font-size: 3rem;
-            background: linear-gradient(135deg, var(--accent) 0%, var(--success) 100%);
+        .gradient-text {
+            background: linear-gradient(135deg, #5C6BC0 0%, #7E57C2 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-weight: 800;
-            font-family: 'Space Grotesk', sans-serif;
-        }
-
-        h1 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 2.8rem;
-            font-weight: 700;
-            letter-spacing: -1px;
-            margin-bottom: 12px;
-            background: linear-gradient(180deg, #ffffff 0%, var(--text-secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 1.15rem;
-            font-weight: 300;
-            max-width: 500px;
-            margin: 0 auto;
-            line-height: 1.5;
-        }
-
-        .card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-glow);
-            border-radius: 32px;
-            padding: 40px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(12px);
-            display: grid;
-            grid-template-columns: 1.2fr 1fr;
-            gap: 40px;
-            align-items: center;
-            position: relative;
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 32px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 100%);
-            pointer-events: none;
-        }
-
-        .info-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        .badge {
-            align-self: flex-start;
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            color: var(--accent);
-            padding: 6px 14px;
-            border-radius: 100px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .info-title {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.8rem;
-            font-weight: 700;
-            line-height: 1.2;
-        }
-
-        .info-desc {
-            color: var(--text-secondary);
-            font-size: 1rem;
-            line-height: 1.6;
-        }
-
-        .steps {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            margin-top: 10px;
-        }
-
-        .step-item {
-            display: flex;
-            gap: 16px;
-            align-items: flex-start;
-        }
-
-        .step-num {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 28px;
-            height: 28px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-glow);
-            border-radius: 50%;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--accent);
-            flex-shrink: 0;
-        }
-
-        .step-text {
-            color: var(--text-primary);
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        .download-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, var(--accent) 0%, #1e40af 100%);
-            color: #ffffff;
-            font-size: 1.05rem;
-            font-weight: 600;
-            text-decoration: none;
-            padding: 16px 32px;
-            border-radius: 18px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            cursor: pointer;
-            margin-top: 15px;
-        }
-
-        .download-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px var(--accent-glow);
-            border-color: var(--accent);
-        }
-
-        .qr-panel {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--border-glow);
-            border-radius: 24px;
-            padding: 30px;
-        }
-
-        .qr-wrapper {
-            background: #ffffff;
-            padding: 16px;
-            border-radius: 18px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.3s ease;
-        }
-
-        .qr-wrapper:hover {
-            transform: scale(1.03);
-        }
-
-        .qr-wrapper img {
-            width: 200px;
-            height: 200px;
-            display: block;
-        }
-
-        .qr-label {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            text-align: center;
-            font-weight: 300;
-            line-height: 1.4;
-        }
-
-        footer {
-            margin-top: 40px;
-            text-align: center;
-            color: rgba(255, 255, 255, 0.25);
-            font-size: 0.85rem;
-            font-weight: 300;
-        }
-
-        @media (max-width: 768px) {
-            .card {
-                grid-template-columns: 1fr;
-                padding: 30px 20px;
-                gap: 30px;
-            }
-            h1 {
-                font-size: 2.2rem;
-            }
         }
     </style>
 </head>
-<body>
+<body class="min-h-screen text-textMain antialiased relative selection:bg-primary selection:text-white flex flex-col items-center justify-center p-6">
 
-    <div class="container">
-        <header>
-            <div class="logo-container">
-                <div class="logo-icon">🛡️</div>
+    <!-- Background Animated Blobs -->
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-[100px] opacity-60 animate-blob"></div>
+        <div class="absolute top-[20%] right-[-10%] w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-[100px] opacity-60 animate-blob animation-delay-2000"></div>
+        <div class="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-indigo-300 rounded-full mix-blend-multiply filter blur-[100px] opacity-60 animate-blob animation-delay-4000"></div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="w-full max-w-5xl mx-auto z-10 flex flex-col items-center">
+        
+        <!-- Header -->
+        <header class="text-center mb-12 animate-float">
+            <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-white shadow-xl shadow-indigo-100 mb-6 border-4 border-white p-2">
+                <svg class="w-full h-full text-primary" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.88-11.71L10 14.17l-1.88-1.88a.996.996 0 1 0-1.41 1.41l2.59 2.59c.39.39 1.02.39 1.41 0L17.3 9.7a.996.996 0 1 0-1.42-1.41z"/>
+                </svg>
             </div>
-            <h1>Nova Assistant</h1>
-            <p class="subtitle">Next-generation bank security Interceptor & smart dialer protection.</p>
+            <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 text-textMain">
+                Meet <span class="gradient-text">Nova.</span>
+            </h1>
+            <p class="text-xl md:text-2xl text-textMuted max-w-2xl mx-auto font-light leading-relaxed">
+                Your personal AI assistant that answers unknown calls, blocks spam, and protects your peace of mind.
+            </p>
         </header>
 
-        <main class="card">
-            <div class="info-panel">
-                <span class="badge">OTA Release v2.1.1</span>
-                <h2 class="info-title">Install Nova Assistant Protection</h2>
-                <p class="info-desc">Scan the QR code or click the download button below from any network to install the Nova Assistant application on your phone.</p>
-                
-                <div class="steps">
-                    <div class="step-item">
-                        <div class="step-num">1</div>
-                        <div class="step-text">Download and install the APK on your device.</div>
+        <!-- Content Grid -->
+        <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center glass-card rounded-[2.5rem] p-8 md:p-12">
+            
+            <!-- Left Info Panel -->
+            <div class="flex flex-col space-y-8">
+                <div>
+                    <span id="version-badge" class="inline-block px-4 py-1.5 rounded-full bg-indigo-50 text-primary font-bold text-sm tracking-wide mb-4 border border-indigo-100 uppercase">
+                        OTA Release v2.1.1
+                    </span>
+                    <h2 class="text-3xl font-bold mb-4">Install Nova Assistant</h2>
+                    <p class="text-textMuted text-lg leading-relaxed">
+                        Download the latest Android APK directly to your device and never answer a spam call again.
+                    </p>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-primary text-white font-bold text-lg shadow-md">1</div>
+                        <p class="ml-4 text-lg text-textMain pt-1">Download and install the APK</p>
                     </div>
-                    <div class="step-item">
-                        <div class="step-num">2</div>
-                        <div class="step-text">Allow the requested Contacts & Dialer permissions on launch.</div>
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-primary text-white font-bold text-lg shadow-md">2</div>
+                        <p class="ml-4 text-lg text-textMain pt-1">Set Nova as your default Caller ID</p>
                     </div>
-                    <div class="step-item">
-                        <div class="step-num">3</div>
-                        <div class="step-text">Enjoy automatic incoming call screening and threat verification.</div>
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-primary text-white font-bold text-lg shadow-md">3</div>
+                        <p class="ml-4 text-lg text-textMain pt-1">Relax while Nova screens your calls</p>
                     </div>
                 </div>
 
-                <a href="https://github.com/g0wtham-eng/Nova Assistant-updates/releases/latest/download/app-debug.apk" class="download-btn">
+                <a href="https://github.com/g0wtham-eng/kavachai-updates/releases/download/v2.1.1/app-debug.apk" class="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-primary to-secondary text-white font-semibold rounded-2xl hover:scale-105 transition-transform duration-300 shadow-xl shadow-indigo-200 text-lg">
                     Download APK Directly
+                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                 </a>
             </div>
 
-            <div class="qr-panel">
-                <div class="qr-wrapper">
-                    <img id="qr-code-img" src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https%3A%2F%2Fgithub.com%2Fg0wtham-eng%2FNova Assistant-updates%2Freleases%2Flatest%2Fdownload%2Fapp-debug.apk" alt="Download QR Code">
+            <!-- Right QR Panel -->
+            <div class="flex flex-col items-center justify-center p-8 bg-gray-50/50 rounded-[2rem] border border-gray-100">
+                <div class="bg-white p-6 rounded-[1.5rem] shadow-2xl shadow-gray-200 transform hover:scale-105 transition-transform duration-300 mb-6">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https%3A%2F%2Fgithub.com%2Fg0wtham-eng%2Fkavachai-updates%2Freleases%2Fdownload%2Fv2.1.1%2Fapp-debug.apk" alt="Download QR Code" class="w-48 h-48 md:w-64 md:h-64 object-contain">
                 </div>
-                <p class="qr-label">Scan from any Wi-Fi or mobile network to download instantly.</p>
+                <p class="text-center text-textMuted text-sm px-4">
+                    Scan with your phone's camera to install instantly.
+                </p>
             </div>
-        </main>
+            
+        </div>
 
-        <footer>
-            &copy; 2026 Nova Assistant Protection Suite. Secure Bank Interception System.
+        <footer class="mt-12 text-center text-sm text-textMuted font-medium">
+            &copy; 2026 Nova Assistant. Designed for peace of mind.
         </footer>
-    </div>
+    </main>
 
     <script>
+        // Optional: dynamic fetch to GitHub API if you want auto-versioning
         fetch('manifest.json')
             .then(res => res.json())
             .then(data => {
                 const match = data.apkUrl.match(/download\/(v[0-9.]+)\//);
                 if (match) {
-                    document.querySelector('.badge').textContent = 'OTA Release ' + match[1].toUpperCase();
+                    document.getElementById('version-badge').textContent = 'OTA Release ' + match[1].toUpperCase();
                 }
             })
-            .catch(err => console.error("Error loading version:", err));
+            .catch(err => console.log("Using default static version."));
     </script>
 </body>
 </html>
