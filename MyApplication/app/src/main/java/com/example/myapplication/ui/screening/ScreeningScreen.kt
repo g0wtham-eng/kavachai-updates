@@ -35,8 +35,8 @@ fun ScreeningScreen(
     onSendMessage: (String) -> Unit
 ) {
     val verdictColor = when (state.verdict) {
-        Verdict.ANALYZING  -> KavachRed
-        Verdict.SAFE       -> NeonGreen
+        Verdict.ANALYZING  -> PrimaryIndigo
+        Verdict.SAFE       -> SecondaryPurple
         Verdict.SUSPICIOUS -> NeonAmber
         Verdict.FRAUD      -> NeonRed
     }
@@ -66,7 +66,7 @@ fun ScreeningScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(BlackBg)
+            .background(Color(0xFFF4F6FB))
     ) {
         // ── Glow blob behind caller ring ──
         Box(
@@ -92,12 +92,12 @@ fun ScreeningScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Icon(Icons.Rounded.Shield, null, tint = KavachRed, modifier = Modifier.size(16.dp))
+                Icon(Icons.Rounded.Shield, null, tint = PrimaryIndigo, modifier = Modifier.size(16.dp))
                 Text(
                     "Nova SCREENING",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
-                    color = KavachRed,
+                    color = PrimaryIndigo,
                     letterSpacing = 2.sp
                 )
             }
@@ -192,8 +192,8 @@ fun ScreeningScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
                     .clip(RoundedCornerShape(24.dp))
-                    .background(Color.White.copy(alpha = 0.03f))
-                    .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(24.dp))
+                    .background(Color(0xFF1E1E2C).copy(alpha = 0.03f))
+                    .border(1.dp, Color(0xFF1E1E2C).copy(alpha = 0.1f), RoundedCornerShape(24.dp))
                     .padding(12.dp)
             ) {
                 TranscriptChatList(transcript = state.transcript, accentColor = verdictColor)
@@ -338,10 +338,10 @@ fun TranscriptChatList(transcript: List<String>, accentColor: Color) {
 @Composable
 fun StatusChip(modifier: Modifier, label: String, icon: ImageVector) {
     val color = when {
-        label == "Analyzing..."   -> KavachRed
+        label == "Analyzing..."   -> PrimaryIndigo
         label.contains("Fraud") || label.contains("AI Cloned") || label.contains("VoIP") -> NeonRed
         label.contains("Uncertain") || label.contains("Suspicious") -> NeonAmber
-        else -> NeonGreen
+        else -> SecondaryPurple
     }
     Column(
         modifier = modifier
@@ -415,7 +415,7 @@ fun ActionButtonsRow(state: ScreeningState, onClose: () -> Unit, accentColor: Co
             modifier = Modifier.weight(1f),
             icon = Icons.Rounded.PersonSearch,
             label = "Take Over",
-            color = KavachRed,
+            color = PrimaryIndigo,
             onClick = onClose
         )
         // Answer (only if not fraud)
@@ -424,7 +424,7 @@ fun ActionButtonsRow(state: ScreeningState, onClose: () -> Unit, accentColor: Co
                 modifier = Modifier.weight(1f),
                 icon = Icons.Rounded.Call,
                 label = "Answer",
-                color = NeonGreen,
+                color = SecondaryPurple,
                 onClick = onClose
             )
         }

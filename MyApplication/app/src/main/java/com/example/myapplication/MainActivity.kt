@@ -46,10 +46,10 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation3.runtime.rememberNavBackStack
 import com.example.myapplication.ui.navigation.Destination
 import com.example.myapplication.ui.navigation.KavachNavGraph
-import com.example.myapplication.ui.theme.BlackBg
-import com.example.myapplication.ui.theme.KavachRed
+import com.example.myapplication.ui.theme.Color(0xFFF4F6FB)
+import com.example.myapplication.ui.theme.PrimaryIndigo
 import com.example.myapplication.ui.theme.MyApplicationTheme
-import com.example.myapplication.ui.theme.NeonGreen
+import com.example.myapplication.ui.theme.SecondaryPurple
 import com.example.myapplication.ui.theme.SurfaceDark
 import com.example.myapplication.ui.theme.TextPrimary
 import com.example.myapplication.ui.theme.TextSecondary
@@ -124,7 +124,7 @@ fun KavachSetupScreen(onSetupComplete: () -> Unit) {
         animationSpec = infiniteRepeatable(tween(2000, easing = EaseInOutSine), RepeatMode.Reverse)
     )
 
-    Scaffold(containerColor = BlackBg) { padding ->
+    Scaffold(containerColor = Color(0xFFF4F6FB)) { padding ->
         Column(
             modifier = Modifier
                 .padding(padding)
@@ -139,15 +139,15 @@ fun KavachSetupScreen(onSetupComplete: () -> Unit) {
                 modifier = Modifier
                     .size(100.dp)
                     .scale(logoScale)
-                    .background(KavachRed.copy(alpha = 0.1f), CircleShape)
-                    .border(1.dp, KavachRed.copy(alpha = 0.3f), CircleShape),
+                    .background(PrimaryIndigo.copy(alpha = 0.1f), CircleShape)
+                    .border(1.dp, PrimaryIndigo.copy(alpha = 0.3f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Security,
                     contentDescription = null,
                     modifier = Modifier.size(50.dp),
-                    tint = KavachRed
+                    tint = PrimaryIndigo
                 )
             }
             
@@ -231,7 +231,7 @@ fun KavachSetupScreen(onSetupComplete: () -> Unit) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = KavachRed),
+                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryIndigo),
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Text("Enter Dashboard", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
@@ -257,8 +257,8 @@ fun PermissionCheckRow(
     isGranted: Boolean,
     onClick: () -> Unit
 ) {
-    val bgColor = if (isGranted) NeonGreen.copy(alpha = 0.1f) else SurfaceDark
-    val borderColor = if (isGranted) NeonGreen.copy(alpha = 0.3f) else SurfaceDark.copy(alpha = 0.5f)
+    val bgColor = if (isGranted) SecondaryPurple.copy(alpha = 0.1f) else SurfaceDark
+    val borderColor = if (isGranted) SecondaryPurple.copy(alpha = 0.3f) else SurfaceDark.copy(alpha = 0.5f)
 
     Row(
         modifier = Modifier
@@ -271,14 +271,14 @@ fun PermissionCheckRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, fontWeight = FontWeight.Bold, color = if (isGranted) NeonGreen else TextPrimary, fontSize = 16.sp)
+            Text(title, fontWeight = FontWeight.Bold, color = if (isGranted) SecondaryPurple else TextPrimary, fontSize = 16.sp)
             Text(description, color = TextSecondary, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
         }
         
         Box(
             modifier = Modifier
                 .size(32.dp)
-                .background(if (isGranted) NeonGreen else Color.Transparent, CircleShape)
+                .background(if (isGranted) SecondaryPurple else Color.Transparent, CircleShape)
                 .border(if (isGranted) 0.dp else 1.dp, TextSecondary, CircleShape),
             contentAlignment = Alignment.Center
         ) {
